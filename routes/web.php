@@ -14,3 +14,7 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/map/geocoding', 'DeliveryController@getGeoByCoordinate');
+Route::get('/map/distance', 'DeliveryController@getDistance');
+Route::get('/map/geolocation','DeliveryController@getGeolocation');
