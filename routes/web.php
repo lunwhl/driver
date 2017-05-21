@@ -15,6 +15,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/pusher', function() {
+    event(new App\Events\DriverPusherEvent('Hi there Pusher!', 2));
+    return "Event has been sent!";
+});
+
+Route::get('/receiver', function(){
+	return view('push');
+});
+
 Route::get('/map/geocoding', 'DeliveryController@getGeoByCoordinate');
 Route::get('/map/distance', 'DeliveryController@getDistance');
 Route::get('/map/geolocation','DeliveryController@getGeolocation');
