@@ -18,3 +18,7 @@ Route::get('/', function () {
 Route::get('/map/geocoding', 'DeliveryController@getGeoByCoordinate');
 Route::get('/map/distance', 'DeliveryController@getDistance');
 Route::get('/map/geolocation','DeliveryController@getGeolocation');
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
