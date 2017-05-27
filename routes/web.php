@@ -31,3 +31,4 @@ Route::get('/map/geolocation','DeliveryController@getGeolocation');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/photo', 'PhotoController@create')->name('photo'); 
