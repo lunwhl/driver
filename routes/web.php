@@ -16,7 +16,7 @@ Route::get('/', function () {
 });
 
 Route::get('/pusher', function() {
-    event(new App\Events\DriverPusherEvent('Hi there Pusher!', 2));
+    event(new App\Events\DriverPusherEvent('Testing pusher', 2));
     return "Event has been sent!";
 });
 
@@ -24,9 +24,15 @@ Route::get('/receiver', function(){
 	return view('push');
 });
 
+Route::post('/map/coordinate', 'DeliveryController@storeCoordinate');
 Route::get('/map/geocoding', 'DeliveryController@getGeoByCoordinate');
 Route::get('/map/distance', 'DeliveryController@getDistance');
-Route::get('/map/geolocation','DeliveryController@getGeolocation');
+Route::get('/map/geolocation','DeliveryController@getGeocoding');
+Route::get('/map/postal', 'DeliveryController@getPostal_code');
+Route::get('/map/placeid', 'DeliveryController@getPlace_id');
+Route::get('/map/driver', 'DeliveryController@getPontential_driver');
+
+Route::post('/profile', 'UserController@update');
 
 Auth::routes();
 
