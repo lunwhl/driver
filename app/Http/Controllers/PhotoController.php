@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Photo; //Importing the relevant files
+use App\Availability; //Importing the relevant files
 
 class PhotoController extends Controller
 {
@@ -14,14 +15,10 @@ class PhotoController extends Controller
      */
     public function index()
     {
-        
         // So here right, we have 2 different methods,
         // Index and create
         // both methods are not linked together
         // So if you define $myObj at create, index wont know what is myObj
-
-
-        //
         return view('photo',[
 
             'name' => $myObj
@@ -51,7 +48,14 @@ class PhotoController extends Controller
         //         'path' => 'some path',
         //     ]);
 
-        $user = 'tommy';
+        // $driverAvailability = Availability::create([
+        //     'begin_time' => '17:45',
+        //     'end_time' => '19:45',
+        //     'date' => '24/03/2012',
+        //     'driver_id' => '1234',
+        //     'status' => 'Available',
+        //     ]);
+
         $flights = Photo::all();
         // $flights = Photo::where('name', 'some name');
         //$flights = Photo::find(1);
@@ -118,6 +122,27 @@ class PhotoController extends Controller
         //unset($customerDistance[1]);
         // return print_r($customerDistance[1]);
         return $customerDistance;
+    }
+
+    protected function storeDriverAvailability(Request $data)
+    {
+        //dd($data->toArray());
+        // Availability::create($data->toArray());
+
+        // Get the current authenticated user
+        // auth()->user()->availabilities()->create(['begin_time' => $data->begin_time,
+        //     'end_time' => $data->end_time,
+        //     'date' => $data->date,
+
+        //     'status' => $data->status,])
+        // Create an availability for that user
+        return Availability::create([
+            'begin_time' => $data->begin_time,
+            'end_time' => $data->end_time,
+            'date' => $data->date,
+            'driver_id' => 1,
+            'status' => $data->status,
+            ]);
     }
 
     public function pickDriver ()

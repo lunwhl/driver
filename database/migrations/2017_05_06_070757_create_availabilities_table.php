@@ -16,11 +16,11 @@ class CreateAvailabilitiesTable extends Migration
         Schema::create('availabilities', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
-            $table->dateTime('begin_time');
-            $table->dateTime('end_time');
+            $table->time('begin_time');
+            $table->time('end_time');
             $table->date('date');
             $table->integer('driver_id');
-            $table->integer('status')->default(0);
+            $table->string('status');
         });
     }
 
