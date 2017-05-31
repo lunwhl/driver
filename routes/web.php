@@ -34,3 +34,4 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::get('/photo', 'PhotoController@create')->name('photo'); 
 Route::post('/photo', 'PhotoController@storeDriverAvailability'); 
+Route::get('/updateAvailability', 'updateAvailability@showAvailability'); 
