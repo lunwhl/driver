@@ -38,6 +38,17 @@ class updateAvailability extends Controller
 
     }
 
+    public function updateAvailabilityIntoDB(Request $data)
+    {
+            return Availability::patch([
+            'begin_time' => $data->begin_time,
+            'end_time' => $data->end_time,
+            'date' => $data->date,
+            'driver_id' => 1,
+            'status' => $data->status,
+            ]);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
