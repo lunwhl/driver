@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -33,5 +34,19 @@ class User extends Authenticatable
     public function availabilities()
     {
         return $this->hasMany('App\Availability');
+    }
+
+    public static function urlPath()
+    {
+        $path = '/images';
+        if(App::environment('local'))
+        {
+            $path = '/images';
+            
+        }elseif (App::environment('production')) {
+            $path = 'https://s3-ap-southeast-1.amazonaws.com/photofactory-bucket/images';   
+        }
+
+        return $path;
     }
 }

@@ -16,13 +16,12 @@ class CreateDeliveriesTable extends Migration
         Schema::create('deliveries', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
-            $table->dateTime('date');
             $table->string('delivery_location');
             $table->string('current_location');
             $table->float('amount');
             $table->integer('order_id');
             $table->integer('driver_id');
-            $table->integer('status');
+            $table->string('status');
         });
     }
 
