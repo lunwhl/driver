@@ -4,9 +4,36 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Delivery;
+use App\User;
 
 class DeliveryController extends Controller
 {
+    public function index()
+    {
+        $deliveries = Delivery::where('status', 'Finish')->where('driver_id', auth()->user()->id)->get();
+
+        return view('index.delivery', ['deliveries' => $deliveries]);
+    }
+
+    public function show($id)
+    {
+        $delivery_id = Delivery::find($id)->id;
+        return view('show.delivery', ['delivery_id' => $delivery_id]);
+    }
+
+    public function updateFinish(Request $request)
+    {
+        $delivery = Delivery::find($request->id);
+
+        $delivery->update([
+            'status' => 'Finish'
+            ]);
+
+        return redirect('/delivery/index');
+
+    }
+
     public function getGeocoding(Request $request)
     {
     	// $response = \GoogleMaps::load('geocoding')
@@ -138,55 +165,63 @@ class DeliveryController extends Controller
         return $place_id;
     }
 
-    public function getPlace_name()
+    public function getPlace_name($place_id)
     {
         $response = \GoogleMaps::load('geocoding')
-                    ->setParamByKey('place_id', 'ChIJ_bmww9E0zDERB7Hzkrf7568') 
+                    ->setParamByKey('place_id', $place_id) 
                     ->get();
 
         $area = json_decode($response, true);
         $collection = collect(json_decode($response)->results);
         $address_components = collect($collection->first()->address_components);
-        $place_name = $address_components->where('types', ['locality', 'political']);
+        $place_name = $address_components->where('types', ['locality', 'political'])->first()->long_name;
 
-        dd($place_name);
-
-        return $place_id;
+        return $place_name;
     }
 
     public function getPontential_driver()
     {
+        // user app need to provide place_id and address and postcode of the user to driver app.
         // the mines = ChIJTS54v7HKzTERb_UYK_CQXtA
         $collection_driver = collect();
-        $drivers = DB::table('users')->where('current_postcode', 43200)->where('online_status', 0)->get();
+        $drivers = DB::table('users')->where('current_postcode', 55100)->where('online_status', 0)->get();
         // dd($drivers);
         foreach($drivers as $driver)
         {
+            // echo $this->getDistance('ChIJTS54v7HKzTERb_UYK_CQXtA', $driver->current_placeid);
             if($this->getDistance('ChIJTS54v7HKzTERb_UYK_CQXtA', $driver->current_placeid) <= '15000')
             {
                 $collection_driver->push($driver);
             }
+        }
 
-            if($collection_driver->isEmpty())
-            {
+        if($collection_driver->isEmpty())
+        {
+            foreach($drivers as $driver)
+            {   
                 if($this->getDistance('ChIJTS54v7HKzTERb_UYK_CQXtA', $driver->current_placeid) <= '30000')
                 {
                     $collection_driver->push($driver);
                 }
             }
+        }
 
-            if($collection_driver->isEmpty())
+        if($collection_driver->isEmpty())
+        {
+            foreach($drivers as $driver)
             {
                 if($this->getDistance('ChIJTS54v7HKzTERb_UYK_CQXtA', $driver->current_placeid) <= '45000')
                 {
                     $collection_driver->push($driver);
                 }
             }
-        }
+        }           
+        
         // $collection_driver = collect($drivers);
         // dd($collection_driver->pluck('id'));
 
         $collection = collect($collection_driver)->pluck('id');
+        // dd($collection);
         $this->sendPusher($collection->toArray(), 0);
         //event(new \App\Events\DriverPusherEvent('in place id', 2));
         return "Event has been sent!";
@@ -201,13 +236,13 @@ class DeliveryController extends Controller
             // Still have drivers to send
             // Get the next driver
 
-            event(new \App\Events\DriverPusherEvent('62, Jalan persiaran, taman taming jaya.', $drivers[$index], $index, $drivers));
+            event(new \App\Events\DriverPusherEvent('62, Jalan persiaran, taman taming jaya. [user pass de address]', $drivers[$index], $index, $drivers));
         }
         else
         {
             echo 'no more';
             // No more driver
-            // Tell user no driver found
+            //  maybe create a event to tell user no driver is found
         }
     }
 
@@ -219,8 +254,24 @@ class DeliveryController extends Controller
         }
         else
         {
-            // Tell user we found a driver
-            // $request->drivers[$request->index];
+            // Store delivery record
+            $driver = User::find($request->id);
+            Delivery::create([
+                'delivery_location' => 'user app provide',
+                'current_location' => $this->getPlace_name($driver->current_placeid),
+                'amount' => '100',
+                'order_id' => '1',
+                'driver_id' => $request->id,
+                'status' => 'Delivering'
+                ]);
+            $delivery_id = Delivery::all()->last()->id;
+
+            //  maybe create a event to tell user we found a driver
+
+            // return driver to delivery page
+            // return redirect('/delivery/index');;
+            return redirect()->action('DeliveryController@show', ['id' => $delivery_id]);
+
         }
     }
 

@@ -34,7 +34,12 @@ Route::get('/map/driver', 'DeliveryController@getPontential_driver');
 Route::post('/map/acceptance', 'DeliveryController@driver_response');
 Route::get('/map/placename', 'DeliveryController@getPlace_name');
 
-Route::post('/profile', 'UserController@update');
+Route::get('/delivery/index', 'DeliveryController@index');
+Route::get('/delivery/index/{id}', 'DeliveryController@show');
+Route::post('/delivery/complete', 'DeliveryController@updateFinish');
+
+Route::get('/profile', 'UserController@show');
+Route::post('/profile/{id}', 'UserController@update');
 
 Auth::routes();
 

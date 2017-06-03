@@ -74,6 +74,12 @@
                         @endif
                     </ul>
                 </div>
+                <form id="acceptance" method="post" action="/map/acceptance">
+                  {!! csrf_field() !!}
+                  <input style="display:none;" id="acceptance" type="text" name="acceptance">
+                  <input style="display:none;" id="index" type="text" name="index">
+                  <input style="display:none;" id="id" type="text" name="id">
+                </form>
             </div>
         </nav>
         @yield('content')
@@ -111,10 +117,13 @@
           buttonsStyling: false
         }).then(function () {
           swal(
-            'Deleted!',
-            'Your file has been deleted.',
-            'success'
+            'Good Luck',
+            'Delivery accepted.'
           )
+          $('#acceptance').val("decline");
+          $('#index').val(data.index);
+          $('#id').val(data.id);
+          $('#acceptance').submit();
         }, function (dismiss) {
           // dismiss can be 'cancel', 'overlay',
           // 'close', and 'timer'

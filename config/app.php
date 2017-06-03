@@ -178,6 +178,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         \Torann\GeoIP\GeoIPServiceProvider::class,
         'GoogleMaps\ServiceProvider\GoogleMapsServiceProvider',
+        Intervention\Image\ImageServiceProvider::class,
 
     ],
 
@@ -229,6 +230,8 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'GeoIP' => \Torann\GeoIP\Facades\GeoIP::class,
         'GoogleMaps' => 'GoogleMaps\Facade\GoogleMapsFacade',
+        'Image' => Intervention\Image\Facades\Image::class,
+        'User' => 'App\User',
 
     ],
 
