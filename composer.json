@@ -9,6 +9,7 @@
         "alexpechkarev/google-maps": "1.0.7",
         "laravel/framework": "5.4.*",
         "laravel/tinker": "~1.0",
+        "pusher/pusher-php-server": "^2.6",
         "torann/geoip": "^1.0"
     },
     "require-dev": {
