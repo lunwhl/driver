@@ -32,21 +32,29 @@ class updateAvailability extends Controller
     public function showAvailability()
     {
         $userAvailabilities = Availability::where('driver_id', '=', Auth::user()->id)->get();  
-        // dd($userAvailabilities);
-
         return view('updateAvailability', ['userAvailabilities' => $userAvailabilities]);  
-
     }
 
-    public function updateAvailabilityIntoDB(Request $data)
+    public function updateAvailabilityIntoDB(Request $data, $id)
     {
-            return Availability::patch([
+            // return Availability::post([
+            // 'begin_time' => $data->begin_time,
+            // 'end_time' => $data->end_time,
+            // 'date' => $data->date,
+            // 'driver_id' => 1,
+            // 'status' => $data->status,
+            // ]);
+            // echo $id;
+            $availability = Availability::find($id);
+            $availability->update([
             'begin_time' => $data->begin_time,
             'end_time' => $data->end_time,
-            'date' => $data->date,
-            'driver_id' => 1,
+            'date' => $availability->date,
+            'driver_id' => $availability->driver_id,
             'status' => $data->status,
             ]);
+
+            return redirect()->back();
     }
 
     /**

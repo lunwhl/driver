@@ -16,7 +16,7 @@
   <div class="modal-dialog">
     
       <!-- Modal content-->
-      <form action="/updateAvailability" method="PATCH">
+      <form action="/updateAvailability/{{$user->id}}" method="POST">
 		{{ csrf_field() }}
 
 	      <div class="modal-content">
@@ -39,23 +39,23 @@
 
 			<p>
 				<label for="date" class="col-md-4 control-label">Date</label>
-				    <input id="beginTime" type="date" class="form-control" name="date" value={{$user->date}} required autofocus>
+				    <input id="beginTime" type="date"  disabled="YES" class="form-control" name="date" value={{$user->date}} required autofocus>
 			</p>
 
 			<p>
 				<label for="status" class="col-md-4 control-label">Status</label>
 	                <select class="form-control" name="status" value="{{$user->status}}" required >
-	                    <option value="available">Available</option>
-	                    <option value="not_available">Not available</option>
+	                	<option selected value="available">Available</option>
+	                    <option  value="not_available">Not available</option>
 	                </select>
 			</p>
 
-
 	        </div>
 	        <div class="modal-footer">
+		      <button type="submit" class="btn btn-primary">Register</button>
 	          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 	        </div>
-	        <button type="submit" class="btn btn-primary">Register</button>
+	        
 	      </div>
       </form>
     </div>
