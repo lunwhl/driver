@@ -76,12 +76,54 @@
                 </div>
             </div>
         </nav>
-
         @yield('content')
     </div>
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://js.pusher.com/3.1/pusher.min.js"></script>
+    <script>
+      //instantiate a Pusher object with our Credential's key
+      var pusher = new Pusher('7e3f96ac11358fca61a6', {
+          cluster: 'ap1',
+          encrypted: false
+      });
+
+      //Subscribe to the channel we specified in our Laravel Event
+      var channel = pusher.subscribe('channel-name-{{ auth()->id() }}');
+
+      //Bind a function to a Event (the full Laravel class)
+      channel.bind('App\\Events\\DriverPusherEvent', addMessage);
+
+      function addMessage(data) {
+        swal({
+          title: 'You Have a Delivery Request?',
+          text: data.message,
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Accept',
+          cancelButtonText: 'Decline',
+          confirmButtonClass: 'btn btn-success',
+          cancelButtonClass: 'btn btn-danger',
+          buttonsStyling: false
+        }).then(function () {
+          swal(
+            'Deleted!',
+            'Your file has been deleted.',
+            'success'
+          )
+        }, function (dismiss) {
+          // dismiss can be 'cancel', 'overlay',
+          // 'close', and 'timer'
+          if (dismiss === 'cancel') {
+            axios.post('/map/acceptance', {acceptance: "decline", index: data.index, id: data.id, drivers: data.drivers});
+          }
+        })
+      }
+    </script>
     @yield('js')
 </body>
 </html>

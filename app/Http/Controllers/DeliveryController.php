@@ -78,14 +78,19 @@ class DeliveryController extends Controller
         // dd($response);
     }
 
-    public function getDistance()
+    public function getDistance($origin, $destination)
     {
     	$response = \GoogleMaps::load('directions')
-        ->setParam (['origin' =>'place_id:ChIJ685WIFYViEgRHlHvBbiD5nE', 
-                'destination' => 'place_id:ChIJA01I-8YVhkgRGJb0fW4UX7Y'])
+        ->setParam (['origin' =>'place_id:'.$origin, 
+                'destination' => 'place_id:'.$destination])
         ->get();
 
-        dd($response);
+        $collection = collect(json_decode($response)->routes);
+        $collection_legs = collect($collection->first()->legs);
+        $collection_distance = collect($collection_legs->first()->distance);
+        $distance = $collection_distance['value'];
+        
+        return $distance;
     }
 
     public function storeCoordinate(Request $request)
@@ -133,15 +138,56 @@ class DeliveryController extends Controller
         return $place_id;
     }
 
+    public function getPlace_name()
+    {
+        $response = \GoogleMaps::load('geocoding')
+                    ->setParamByKey('place_id', 'ChIJ_bmww9E0zDERB7Hzkrf7568') 
+                    ->get();
+
+        $area = json_decode($response, true);
+        $collection = collect(json_decode($response)->results);
+        $address_components = collect($collection->first()->address_components);
+        $place_name = $address_components->where('types', ['locality', 'political']);
+
+        dd($place_name);
+
+        return $place_id;
+    }
+
     public function getPontential_driver()
     {
-        $drivers = DB::table('users')->where('current_postcode', 43300)->get();
+        // the mines = ChIJTS54v7HKzTERb_UYK_CQXtA
+        $collection_driver = collect();
+        $drivers = DB::table('users')->where('current_postcode', 43200)->where('online_status', 0)->get();
+        // dd($drivers);
+        foreach($drivers as $driver)
+        {
+            if($this->getDistance('ChIJTS54v7HKzTERb_UYK_CQXtA', $driver->current_placeid) <= '15000')
+            {
+                $collection_driver->push($driver);
+            }
 
-        $collection_driver = collect($drivers);
-        dd($collection_driver->pluck('id'));
+            if($collection_driver->isEmpty())
+            {
+                if($this->getDistance('ChIJTS54v7HKzTERb_UYK_CQXtA', $driver->current_placeid) <= '30000')
+                {
+                    $collection_driver->push($driver);
+                }
+            }
 
-        // $collection = collect($drivers)->pluck('id');
-        // $this->sendPusher($collection->toArray(), 0);
+            if($collection_driver->isEmpty())
+            {
+                if($this->getDistance('ChIJTS54v7HKzTERb_UYK_CQXtA', $driver->current_placeid) <= '45000')
+                {
+                    $collection_driver->push($driver);
+                }
+            }
+        }
+        // $collection_driver = collect($drivers);
+        // dd($collection_driver->pluck('id'));
+
+        $collection = collect($collection_driver)->pluck('id');
+        $this->sendPusher($collection->toArray(), 0);
         //event(new \App\Events\DriverPusherEvent('in place id', 2));
         return "Event has been sent!";
     }
@@ -155,10 +201,11 @@ class DeliveryController extends Controller
             // Still have drivers to send
             // Get the next driver
 
-            event(new \App\Events\DriverPusherEvent('in place id', $drivers[$index++]));
+            event(new \App\Events\DriverPusherEvent('62, Jalan persiaran, taman taming jaya.', $drivers[$index], $index, $drivers));
         }
         else
         {
+            echo 'no more';
             // No more driver
             // Tell user no driver found
         }
@@ -166,11 +213,9 @@ class DeliveryController extends Controller
 
     public function driver_response(Request $request)
     {
-
-        if( !$request->acceptance )
+        if( strcasecmp($request->acceptance, 'decline') == 0 )
         {
-            // Driver denied
-            $this->sendPusher($request->drivers, $request->index);
+            $this->sendPusher($request->drivers, $request->index + 1);
         }
         else
         {

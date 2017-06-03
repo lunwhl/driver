@@ -18,19 +18,19 @@ class DriverPusherEvent implements ShouldBroadcast
     /**
      * Only (!) Public members will be serialized to JSON and sent to Pusher
     **/
-    public $message, $id, $drivers;
+    public $message, $id, $drivers, $index;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($message, $id, $drivers, $index)
+    public function __construct($message, $id, $index, $drivers)
     {
         $this->message = $message;
         $this->id = $id;
-        $this->drivers = $drivers;
         $this->index = $index;
+        $this->drivers = $drivers;
     }
 
     /**
