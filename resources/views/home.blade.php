@@ -39,9 +39,6 @@ var x = document.getElementById("demo");
         })
     });
   function showPosition(position) {
-      x.innerHTML = "Latitude: " + position.coords.latitude + 
-      "<br>Longitude: " + position.coords.longitude; 
-
       axios.post('/map/coordinate', {long: position.coords.longitude, lat: position.coords.latitude});
   }
 
