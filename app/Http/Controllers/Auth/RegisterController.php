@@ -104,7 +104,7 @@ class RegisterController extends Controller
             'bank' => $request->bank,
             'account' => $request->account,
             'role' => '0',
-            'online_status' => '0',
+            'online_status' => 'offline',
             'status' => '0',
             'password' => bcrypt($request->password),
         ]);
