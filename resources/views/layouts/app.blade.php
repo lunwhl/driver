@@ -58,6 +58,9 @@
                                 </a>
 
                                 <ul class="dropdown-menu" role="menu">
+                                    <li><a href="/home">Home</a></li>
+                                    <li><a href="/profile">Profile</a></li>
+                                    <li><a href="/map/driver">Sender Test</a></li>
                                     <li>
                                         <a href="{{ route('logout') }}"
                                             onclick="event.preventDefault();
@@ -134,5 +137,26 @@
       }
     </script>
     @yield('js')
+    <script>
+      function idleLogout(){
+        var t;
+        window.onload = resetTimer;
+        window.onmousemove = resetTimer;
+        window.onmousedown = resetTimer;
+        window.onclick = resetTimer;
+        window.onscroll = resetTimer;
+        window.onkeypress = resetTimer;
+
+        function logout(){
+          window.location.href = 'logout';
+        }
+
+        function resetTimer(){
+          clearTimeout(t);
+          t = setTimeout(logout, 60000);
+        }
+      }
+    idleLogout();
+    </script>
 </body>
 </html>
