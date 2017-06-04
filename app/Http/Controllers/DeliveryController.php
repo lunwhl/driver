@@ -184,6 +184,7 @@ class DeliveryController extends Controller
         // user app need to provide place_id and address and postcode of the user to driver app.
         // the mines = ChIJTS54v7HKzTERb_UYK_CQXtA
         $collection_driver = collect();
+        $drivers = DB::table('users')->where('current_postcode', 43200)->where('online_status', 'online')->get();
         // dd($drivers);
         foreach($drivers as $driver)
         {
