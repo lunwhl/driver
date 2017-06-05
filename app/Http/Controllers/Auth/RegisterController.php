@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App;
 use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Input;
+use Intervention\Image\ImageManagerStatic as Image;
 
 class RegisterController extends Controller
 {
@@ -60,26 +64,122 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return User
      */
-    protected function create(array $data)
+    protected function create(Request $request)
     {
         return User::create([
-            'fname' => $data['fname'],
-            'lname' => $data['lname'],
-            'email' => $data['email'],
-            'identity' => $data['identity'],
-            'address' => $data['address'],
-            'postcode' => $data['postcode'],
-            'phone' => $data['phone'],
-            'state' => $data['state'],
-            'city' => $data['city'],
-            'nationality' => $data['nationality'],
-            'gender' => $data['gender'],
-            'bank' => $data['bank'],
-            'account' => $data['account'],
+            'fname' => $request->fname,
+            'lname' => $request->lname,
+            'email' => $request->email,
+            'identity' =>$request->identity,
+            'address' => $request->address,
+            'postcode' => $request->postcode,
+            'phone' => $request->phone,
+            'state' => $request->state,
+            'city' => $request->city,
+            'nationality' => $request->nationality,
+            'gender' => $request->gender,
+            'bank' => $request->bank,
+            'account' => $request->account,
             'role' => '0',
             'online_status' => '0',
             'status' => '0',
-            'password' => bcrypt($data['password']),
+            'password' => bcrypt($request->password),
         ]);
     }
+
+    public function register(Request $request)
+    {
+        $user = User::create([
+            'fname' => $request->fname,
+            'lname' => $request->lname,
+            'email' => $request->email,
+            'identity' =>$request->identity,
+            'address' => $request->address,
+            'postcode' => $request->postcode,
+            'phone' => $request->phone,
+            'state' => $request->state,
+            'city' => $request->city,
+            'nationality' => $request->nationality,
+            'gender' => $request->gender,
+            'bank' => $request->bank,
+            'account' => $request->account,
+            'role' => '0',
+            'online_status' => 'offline',
+            'status' => '0',
+            'password' => bcrypt($request->password),
+        ]);
+
+        $User = User::all()->last();
+        $Car = Input::file('Carimage');
+        if( !empty( $Car ) ):
+
+            $ext1 = $Car->getClientOriginalExtension();
+            $filename1 = $User->id . "car." . "JPG";
+            //save IC into identity in user table
+            $user = User::find($User->id);
+            $user->license_plate = $filename1;
+            $user->save();
+            if( App::environment('local') )
+            {
+                // Storage::put('public/images/'.$filename1, file_get_contents($IC));
+                $img = Image::make( $Car->getRealPath() );
+                $path = 'images/' . $filename1;
+                $this->SaveImage( $img, $path );
+            }
+            else if( App::environment('production') )
+            {
+                // $s3 = \Storage::disk('s3');
+                // $s3->put($filePath, file_get_contents($IC), 'public');
+                $img = Image::make( $Car->getRealPath() );
+                    $path = 'images/' . $filename1;
+                    $this->SaveImage( $img, $path );
+            }
+        endif;
+
+        $IC = Input::file('ICimage');
+        if( !empty( $IC ) ):
+
+            $ext1 = $IC->getClientOriginalExtension();
+            $filename1 = $User->id . "IC." . "JPG";
+            //save IC into identity in user table
+            $user = User::find($User->id);
+            $user->ic = $filename1;
+            $user->save();
+            if( App::environment('local') )
+            {
+                // Storage::put('public/images/'.$filename1, file_get_contents($IC));
+                $img = Image::make( $IC->getRealPath() );
+                $path = 'images/' . $filename1;
+                $this->SaveImage( $img, $path );
+            }
+            else if( App::environment('production') )
+            {
+                // $s3 = \Storage::disk('s3');
+                // $s3->put($filePath, file_get_contents($IC), 'public');
+                $img = Image::make( $IC->getRealPath() );
+                    $path = 'images/' . $filename1;
+                    $this->SaveImage( $img, $path );
+            }
+
+
+        endif;
+        $user->save();
+
+      return redirect('/login');  
+    }  
+
+    public function SaveImage($image, $filename){
+        if( App::environment('production') )
+        {
+            $image_target = $image->stream();
+
+            $s3 = \Storage::disk('s3');
+            $s3->put($filename, $image_target->__toString());
+        }
+        else
+        {
+            $image->save( $filename );
+        }
+    }
+
 }
