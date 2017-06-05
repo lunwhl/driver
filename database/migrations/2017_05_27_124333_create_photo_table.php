@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateAvailabilitiesTable extends Migration
+class CreatePhotoTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,11 @@ class CreateAvailabilitiesTable extends Migration
      */
     public function up()
     {
-        Schema::create('availabilities', function (Blueprint $table) {
+        Schema::create('photos', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
-            $table->time('begin_time');
-            $table->time('end_time');
-            $table->date('date');
-            $table->integer('driver_id');
-            $table->string('status');
+            $table->string('name');
+            $table->string('path');
         });
     }
 
@@ -31,6 +28,6 @@ class CreateAvailabilitiesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('availabilities');
+        Schema::dropIfExists('photos');
     }
 }
