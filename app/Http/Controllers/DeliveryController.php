@@ -16,9 +16,8 @@ class DeliveryController extends Controller
         return view('index.delivery', ['deliveries' => $deliveries]);
     }
 
-    public function show($id)
+    public function show($delivery_id)
     {
-        $delivery_id = Delivery::find($id)->id;
         return view('show.delivery', ['delivery_id' => $delivery_id]);
     }
 
@@ -34,54 +33,6 @@ class DeliveryController extends Controller
 
     }
 
-    public function getGeocoding(Request $request)
-    {
-    	// $response = \GoogleMaps::load('geocoding')
-     //    ->setParam (['address' =>'taman taming jaya, balakong, selangor'])
-     //    ->get();
-
-     //    dd($response);
-
-     //    // $area = json_decode($response, true);
-
-     //    // foreach($area['results'] as $i => $v)
-     //    // {
-     //    // 	echo $v['geometry'].'<br/>';
-     //    // }
-     //    // dd(json_decode($response));
-        // foreach(json_decode($response)->results as $area)
-        // {
-        // 	$lat = $area->geometry->location->lat;
-        // 	$lng = $area->geometry->location->lng;
-        // }
-        // echo 'lat: ' . $lat . ' ' . 'lng: ' . $lng;
-
-        // dd(Deliver::geocoding("taming jaya"));
-        // return view('getgeolocation');
-    }
-
-    // public function getPostal_code()
-    // {
-    //     $response = \GoogleMaps::load('geocoding')
-    //                 ->setParamByKey('latlng', '2.982703, 101.601289') 
-    //                 ->get();
-
-    //              $area = json_decode($response, true);
-    //     // dd(json_decode($response)->results->first());
-    //     $collection = collect(json_decode($response)->results);
-    //     $address_components = collect($collection->first()->address_components);
-    //     // dd($address_components->where('types', ['postal_code'])->first()->long_name);
-    //     $postal_code = $address_components->where('types', ['postal_code'])->first()->long_name;
-    //     echo $postal_code;
-    //     // foreach(json_decode($response)->results as $area)
-    //     // {
-    //     //   $lat = $area->geometry->location->lat;
-    //     //   $lng = $area->geometry->location->lng;
-    //     // }
-
-    //     // echo 'lat: ' . $lat . ' ' . 'lng: ' . $lng;
-    // }
-
     public function getGeoByCoordinate()
     {
         $response = \GoogleMaps::load('geocoding')
@@ -89,10 +40,6 @@ class DeliveryController extends Controller
                     ->get();
 
                  $area = json_decode($response, true);
-        // dd(json_decode($response)->results->first());
-        // $collection = collect(json_decode($response)->results);
-        // $address_components = collect($collection->first()->address_components)
-        // dd($address_components->where('types', ['postal_code'])->first()->long_name);
                  dd(json_decode($response)->results);
         foreach(json_decode($response)->results as $area)
         {
@@ -101,8 +48,6 @@ class DeliveryController extends Controller
         }
 
         echo 'lat: ' . $lat . ' ' . 'lng: ' . $lng;
-
-        // dd($response);
     }
 
     public function getDistance($origin, $destination)
@@ -123,8 +68,8 @@ class DeliveryController extends Controller
     public function storeCoordinate(Request $request)
     {
 
-        $postal_code = $this->getPostal_code($request->lat, $request->long);
-        $place_id = $this->getPlace_id($request->lat, $request->long);
+        $postal_code = $this->getPostalCode($request->lat, $request->long);
+        $place_id = $this->getPlaceId($request->lat, $request->long);
 
         $auth = auth()->user();
 
@@ -138,7 +83,7 @@ class DeliveryController extends Controller
         return response([], 200);
     }
 
-    public function getPostal_code($lat, $long)
+    public function getPostalCode($lat, $long)
     {
         $response = \GoogleMaps::load('geocoding')
                     ->setParamByKey('latlng', $lat.','.$long) 
@@ -152,7 +97,7 @@ class DeliveryController extends Controller
         return $postal_code;
     }
 
-    public function getPlace_id($lat, $long)
+    public function getPlaceId($lat, $long)
     {
         $response = \GoogleMaps::load('geocoding')
                     ->setParamByKey('latlng', $lat.','.$long) 
@@ -165,7 +110,7 @@ class DeliveryController extends Controller
         return $place_id;
     }
 
-    public function getPlace_name($place_id)
+    public function getPlaceName($place_id)
     {
         $response = \GoogleMaps::load('geocoding')
                     ->setParamByKey('place_id', $place_id) 
@@ -179,12 +124,12 @@ class DeliveryController extends Controller
         return $place_name;
     }
 
-    public function getPontential_driver()
+    public function getPotentialDriver()
     {
         // user app need to provide place_id and address and postcode of the user to driver app.
         // the mines = ChIJTS54v7HKzTERb_UYK_CQXtA
         $collection_driver = collect();
-        $drivers = DB::table('users')->where('current_postcode', 43200)->where('online_status', 'online')->get();
+        $drivers = User::where('current_postcode', 43200)->where('online_status', 'online')->get();
         // dd($drivers);
         foreach($drivers as $driver)
         {
@@ -242,7 +187,7 @@ class DeliveryController extends Controller
         }
     }
 
-    public function driver_response(Request $request)
+    public function getDriverResponse(Request $request)
     {
         if( strcasecmp($request->acceptance, 'decline') == 0 )
         {
@@ -254,7 +199,7 @@ class DeliveryController extends Controller
             $driver = User::find($request->id);
             Delivery::create([
                 'delivery_location' => 'user app provide',
-                'current_location' => $this->getPlace_name($driver->current_placeid),
+                'current_location' => $this->getPlaceName($driver->current_placeid),
                 'amount' => '100',
                 'order_id' => '1',
                 'driver_id' => $request->id,
@@ -265,15 +210,8 @@ class DeliveryController extends Controller
             //  maybe create a event to tell user we found a driver
 
             // return driver to delivery page
-            // return redirect('/delivery/index');;
             return redirect()->action('DeliveryController@show', ['id' => $delivery_id]);
 
         }
     }
-
-
-    // public function userAddress()
-    // {
-    //     $PontentialUsers = User::
-    // }
 }

@@ -28,11 +28,11 @@ Route::post('/map/coordinate', 'DeliveryController@storeCoordinate');
 Route::get('/map/geocoding', 'DeliveryController@getGeoByCoordinate');
 Route::get('/map/distance', 'DeliveryController@getDistance');
 Route::get('/map/geolocation','DeliveryController@getGeocoding');
-Route::get('/map/postal', 'DeliveryController@getPostal_code');
-Route::get('/map/placeid', 'DeliveryController@getPlace_id');
-Route::get('/map/driver', 'DeliveryController@getPontential_driver');
-Route::post('/map/acceptance', 'DeliveryController@driver_response');
-Route::get('/map/placename', 'DeliveryController@getPlace_name');
+Route::get('/map/postal', 'DeliveryController@getPostalCode');
+Route::get('/map/placeid', 'DeliveryController@getPlaceId');
+Route::get('/map/driver', 'DeliveryController@getPotentialDriver');
+Route::post('/map/acceptance', 'DeliveryController@getDriverResponse');
+Route::get('/map/placename', 'DeliveryController@getPlaceName');
 
 Route::get('/delivery/index', 'DeliveryController@index');
 Route::get('/delivery/index/{id}', 'DeliveryController@show');
