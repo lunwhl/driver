@@ -167,7 +167,7 @@ class DeliveryController extends Controller
         $collection = collect($collection_driver)->pluck('id');
         $this->sendPusher($collection->toArray(), 0, $request->address);
 
-        return response(200);
+        return response("Fuck Haw", 202);
     }
 
     // Listen for response, call the sender if no response or decline
