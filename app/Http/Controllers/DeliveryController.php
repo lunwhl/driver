@@ -137,7 +137,7 @@ class DeliveryController extends Controller
         $User_PlaceId = $this->getPlaceId($lat, $lng);
 
         $collection_driver = collect();
-        $drivers = User::where('current_postcode', 57000)->where('online_status', '0')->get();
+        $drivers = User::where('online_status', 'online')->get();
         // dd($drivers);
         foreach($drivers as $driver)
         {
