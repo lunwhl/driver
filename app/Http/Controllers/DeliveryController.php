@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Request;
 use App\Delivery;
 use App\User;
 
