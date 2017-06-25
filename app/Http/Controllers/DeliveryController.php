@@ -130,7 +130,7 @@ class DeliveryController extends Controller
         $lat = 3.06134909999999970000;
         $lng = 101.67525400000000000000;
         $address = "hehe";
-        $order_id = 2;
+        $order_id = $request->order_id;
         // user app need to provide place_id and address and postcode of the user to driver app.
         // the mines = ChIJTS54v7HKzTERb_UYK_CQXtA
         $User_Postcode = $this->getPostalCode($lat, $lng);
