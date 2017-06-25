@@ -124,17 +124,19 @@ class DeliveryController extends Controller
         return $place_name;
     }
 
-    public function getPotentialDriver()
+    public function getPotentialDriver($lat, $lang, $address, $time)
     {
         // user app need to provide place_id and address and postcode of the user to driver app.
         // the mines = ChIJTS54v7HKzTERb_UYK_CQXtA
+        $User_Postcode = $this->getPostalCode($lat, $lang);
+        $User_PlaceId = $this->getPlaceId($lat, $lang);
         $collection_driver = collect();
-        $drivers = User::where('current_postcode', 43200)->where('online_status', 'online')->get();
+        $drivers = User::where('current_postcode', $User_Postcode)->where('online_status', 'online')->get();
         // dd($drivers);
         foreach($drivers as $driver)
         {
             // echo $this->getDistance('ChIJTS54v7HKzTERb_UYK_CQXtA', $driver->current_placeid);
-            if($this->getDistance('ChIJTS54v7HKzTERb_UYK_CQXtA', $driver->current_placeid) <= '15000')
+            if($this->getDistance($User_PlaceId, $driver->current_placeid) <= '15000')
             {
                 $collection_driver->push($driver);
             }
@@ -144,7 +146,7 @@ class DeliveryController extends Controller
         {
             foreach($drivers as $driver)
             {   
-                if($this->getDistance('ChIJTS54v7HKzTERb_UYK_CQXtA', $driver->current_placeid) <= '30000')
+                if($this->getDistance($User_PlaceId, $driver->current_placeid) <= '30000')
                 {
                     $collection_driver->push($driver);
                 }
@@ -155,7 +157,7 @@ class DeliveryController extends Controller
         {
             foreach($drivers as $driver)
             {
-                if($this->getDistance('ChIJTS54v7HKzTERb_UYK_CQXtA', $driver->current_placeid) <= '45000')
+                if($this->getDistance($User_PlaceId, $driver->current_placeid) <= '45000')
                 {
                     $collection_driver->push($driver);
                 }
@@ -163,21 +165,21 @@ class DeliveryController extends Controller
         }           
 
         $collection = collect($collection_driver)->pluck('id');
-        $this->sendPusher($collection->toArray(), 0);
+        $this->sendPusher($collection->toArray(), 0, $address);
 
         return "Event has been sent!";
     }
 
     // Listen for response, call the sender if no response or decline
     // Send the message to the driver
-    public function sendPusher($drivers, $index)
+    public function sendPusher($drivers, $index, $address)
     {
         if( $index != sizeOf($drivers) )
         {
             // Still have drivers to send
             // Get the next driver
 
-            event(new \App\Events\DriverPusherEvent('62, Jalan persiaran, taman taming jaya. [user pass de address]', $drivers[$index], $index, $drivers));
+            event(new \App\Events\DriverPusherEvent($address, $drivers[$index], $index, $drivers));
         }
         else
         {
