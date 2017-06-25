@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use GuzzleHttp\Client;
 use App\Delivery;
 use App\User;
 
@@ -126,12 +127,17 @@ class DeliveryController extends Controller
 
     public function getPotentialDriver(Request $request)
     {
+        $lat = 3.06134909999999970000;
+        $lng = 101.67525400000000000000;
+        $address = "hehe";
+        $order_id = 2;
         // user app need to provide place_id and address and postcode of the user to driver app.
         // the mines = ChIJTS54v7HKzTERb_UYK_CQXtA
-        $User_Postcode = $this->getPostalCode($request->latitude, $request->longitude);
-        $User_PlaceId = $this->getPlaceId($request->latitude, $request->longitude);
+        $User_Postcode = $this->getPostalCode($lat, $lng);
+        $User_PlaceId = $this->getPlaceId($lat, $lng);
+
         $collection_driver = collect();
-        $drivers = User::where('current_postcode', $User_Postcode)->where('online_status', 'online')->get();
+        $drivers = User::where('current_postcode', 57000)->where('online_status', '0')->get();
         // dd($drivers);
         foreach($drivers as $driver)
         {
@@ -165,21 +171,21 @@ class DeliveryController extends Controller
         }           
 
         $collection = collect($collection_driver)->pluck('id');
-        $this->sendPusher($collection->toArray(), 0, $request->address);
+        $this->sendPusher($collection->toArray(), 0, $address, $order_id);
 
         return response("Fuck Haw", 202);
     }
 
     // Listen for response, call the sender if no response or decline
     // Send the message to the driver
-    public function sendPusher($drivers, $index, $address)
+    public function sendPusher($drivers, $index, $address, $order_id)
     {
         if( $index != sizeOf($drivers) )
         {
             // Still have drivers to send
             // Get the next driver
 
-            event(new \App\Events\DriverPusherEvent($address, $drivers[$index], $index, $drivers));
+            event(new \App\Events\DriverPusherEvent($address, $drivers[$index], $index, $drivers, $order_id));
         }
         else
         {
@@ -193,26 +199,36 @@ class DeliveryController extends Controller
     {
         if( strcasecmp($request->acceptance, 'decline') == 0 )
         {
-            $this->sendPusher($request->drivers, $request->index + 1);
+            $this->sendPusher($request->drivers, $request->index + 1, $request->address, $request->order_id);
         }
         else
         {
             // Store delivery record
             $driver = User::find($request->id);
             Delivery::create([
-                'delivery_location' => 'user app provide',
+                'delivery_location' => $request->address,
                 'current_location' => $this->getPlaceName($driver->current_placeid),
                 'amount' => '100',
-                'order_id' => '1',
+                'order_id' => $request->order_id,
                 'driver_id' => $request->id,
                 'status' => 'Awaiting'
                 ]);
             $delivery_id = Delivery::all()->last()->id;
 
             //  maybe create a event to tell user we found a driver
+            $client = new Client();
+            $request = $client->request('POST', 'http://dabao.welory.com.my/driver/result')
+                              ->addPostFiles(array('driver_name' => $driver->fname." ".$driver->lname,
+                                                    'driver_id' => $driver->id,
+                                                    'driver_image' => "testing image",
+                                                    'status' => "found",
+                                                    'order_id' => $request->order_id));
+            $response = $request->send();
+                              //driver_name, driver_id, driver_image, status, order_id
 
             // return driver to delivery page
             return redirect()->action('DeliveryController@show', ['id' => $delivery_id]);
+            // echo $request->order_id;
 
         }
     }

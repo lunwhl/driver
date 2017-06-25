@@ -88,6 +88,8 @@
                   <input style="display:none;" id="acceptance" type="text" name="acceptance">
                   <input style="display:none;" id="index" type="text" name="index">
                   <input style="display:none;" id="id" type="text" name="id">
+                  <input style="display:none;" id="address" type="text" name="address">
+                  <input style="display:none;" id="order_id" type="text" name="order_id">
                 </form>
             </div>
         </nav>
@@ -150,16 +152,18 @@
             'Delivery accepted.'
           )
           clearInterval(timer);
-          $('#acceptance').val("decline");
+          $('#acceptance').val("accept");
           $('#index').val(data.index);
           $('#id').val(data.id);
+          $('#address').val(data.message);
+          $('#order_id').val(data.order_id);
           $('#acceptance').submit();
         }, function (dismiss) {
           // dismiss can be 'cancel', 'overlay',
           // 'close', and 'timer'
           clearInterval(timer);
           if (dismiss === 'cancel' || dismiss === 'timer') {
-            axios.post('/map/acceptance', {acceptance: "decline", index: data.index, id: data.id, drivers: data.drivers});
+            axios.post('/map/acceptance', {acceptance: "decline", index: data.index, id: data.id, drivers: data.drivers, order_id: data.order_id, address: data.message});
           }
         })
         timer = setInterval(function() {
