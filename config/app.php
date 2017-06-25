@@ -179,6 +179,7 @@ return [
         \Torann\GeoIP\GeoIPServiceProvider::class,
         'GoogleMaps\ServiceProvider\GoogleMapsServiceProvider',
         Intervention\Image\ImageServiceProvider::class,
+        Barryvdh\Cors\ServiceProvider::class,
 
     ],
 
