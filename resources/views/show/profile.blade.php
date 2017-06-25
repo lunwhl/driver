@@ -1,0 +1,227 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="panel panel-default">
+                <div class="panel-heading">Register</div>
+                <div class="panel-body">
+                    <form class="form-horizontal" role="form" method="POST" action="/profile/{{$auth->id}}" enctype="multipart/form-data">
+                        {{ csrf_field() }}
+
+                        <div class="form-group{{ $errors->has('fname') ? ' has-error' : '' }}">
+                            <label for="fname" class="col-md-4 control-label">First Name</label>
+
+                            <div class="col-md-6">
+                                <input id="fname" type="text" class="form-control" name="fname" value="{{$auth->fname}}" required autofocus>
+
+                                @if ($errors->has('fname'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('fname') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group{{ $errors->has('lname') ? ' has-error' : '' }}">
+                            <label for="lname" class="col-md-4 control-label">Last Name</label>
+
+                            <div class="col-md-6">
+                                <input id="lname" type="text" class="form-control" name="lname" value="{{$auth->lname}}" required autofocus>
+
+                                @if ($errors->has('lname'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('lname') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+                            <label for="email" class="col-md-4 control-label">E-Mail Address</label>
+
+                            <div class="col-md-6">
+                                <input id="email" type="email" class="form-control" name="email" value="{{$auth->email}}" disabled>
+
+                                @if ($errors->has('email'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('email') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
+                            <label for="phone" class="col-md-4 control-label">Phone</label>
+
+                            <div class="col-md-6">
+                                <input id="phone" type="text" class="form-control" name="phone" value="{{$auth->phone}}" disabled autofocus>
+
+                                @if ($errors->has('phone'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('phone') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group{{ $errors->has('identity') ? ' has-error' : '' }}">
+                            <label for="identity" class="col-md-4 control-label">Identity</label>
+
+                            <div class="col-md-6">
+                                <input id="identity" type="text" class="form-control" name="identity" value="{{$auth->identity}}" disabled autofocus>
+
+                                @if ($errors->has('identity'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('identity') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group{{ $errors->has('address') ? ' has-error' : '' }}">
+                            <label for="address" class="col-md-4 control-label">Address</label>
+
+                            <div class="col-md-6">
+                                <input id="address" type="text" class="form-control" name="address" value="{{$auth->address}}" disabled autofocus>
+
+                                @if ($errors->has('address'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('address') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group{{ $errors->has('postcode') ? ' has-error' : '' }}">
+                            <label for="postcode" class="col-md-4 control-label">Postcode</label>
+
+                            <div class="col-md-6">
+                                <input id="postcode" type="text" class="form-control" name="postcode" value="{{$auth->postcode}}" disabled autofocus>
+
+                                @if ($errors->has('postcode'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('postcode') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div> 
+
+                        <div class="form-group{{ $errors->has('state') ? ' has-error' : '' }}">
+                            <label for="state" class="col-md-4 control-label">State</label>
+
+                            <div class="col-md-6">
+                                <input id="state" type="text" class="form-control" name="state" value="{{$auth->state}}" disabled autofocus>
+
+                                @if ($errors->has('state'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('state') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group{{ $errors->has('city') ? ' has-error' : '' }}">
+                            <label for="city" class="col-md-4 control-label">City</label>
+
+                            <div class="col-md-6">
+                                <input id="city" type="text" class="form-control" name="city" value="{{$auth->city}}" disabled autofocus>
+
+                                @if ($errors->has('city'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('city') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group{{ $errors->has('nationality') ? ' has-error' : '' }}">
+                            <label for="nationality" class="col-md-4 control-label">Nationality</label>
+
+                            <div class="col-md-6">
+                                <input id="nationality" type="text" class="form-control" name="nationality" value="{{$auth->nationality}}" disabled autofocus>
+
+                                @if ($errors->has('nationality'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('nationality') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group{{ $errors->has('gender') ? ' has-error' : '' }}">
+                            <label for="gender" class="col-md-4 control-label">Gender</label>
+
+                            <div class="col-md-6">
+                                <input id="gender" type="text" class="form-control" name="gender" value="{{$auth->gender}}" disabled autofocus>
+
+                                @if ($errors->has('gender'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('gender') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group{{ $errors->has('bank') ? ' has-error' : '' }}">
+                            <label for="bank" class="col-md-4 control-label">Bank</label>
+
+                            <div class="col-md-6">
+                                <input id="bank" type="text" class="form-control" name="bank" value="{{$auth->bank}}" disabled autofocus>
+
+                                @if ($errors->has('bank'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('bank') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group{{ $errors->has('account') ? ' has-error' : '' }}">
+                            <label for="account" class="col-md-4 control-label">Account</label>
+
+                            <div class="col-md-6">
+                                <input id="account" type="text" class="form-control" name="account" value="{{$auth->account}}" disabled autofocus>
+
+                                @if ($errors->has('account'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('account') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Carimage" class="col-md-4 control-label">Current Vehicle Photo</label>
+                            <div class="col-md-6">
+                            <img src="{{ $path }}/{{ $auth->license_plate }}" style="width:inherit;">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Carimage" class="col-md-4 control-label">Vehicle Photo</label>
+                            <div class="col-md-6">
+                                <input type="file" class="form-control" name="Carimage">
+                                @if ($errors->has('account'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('account') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-6 col-md-offset-4">
+                                <button type="submit" class="btn btn-primary">
+                                    Register
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
