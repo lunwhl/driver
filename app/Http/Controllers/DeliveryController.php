@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request;
 use App\Delivery;
 use App\User;
 
@@ -217,13 +218,12 @@ class DeliveryController extends Controller
 
             //  maybe create a event to tell user we found a driver
             $client = new Client();
-            $request = $client->request('POST', 'http://dabao.welory.com.my/api/driver/result')
-                              ->addPostFiles(array('driver_name' => $driver->fname." ".$driver->lname,
+            $request = $client->request('POST', 'http://dabao.welory.com.my/api/driver/result',
+                                                    ['driver_name' => $driver->fname." ".$driver->lname,
                                                     'driver_id' => $driver->id,
                                                     'driver_image' => "testing image",
                                                     'status' => "found",
-                                                    'order_id' => $request->order_id));
-            $response = $request->send();
+                                                    'order_id' => $request->order_id]);
                               //driver_name, driver_id, driver_image, status, order_id
 
             // return driver to delivery page
