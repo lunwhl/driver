@@ -12,12 +12,18 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.6.4/sweetalert2.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.6.4/sweetalert2.css">
 
 <!-- Include a polyfill for ES6 Promises (optional) for IE11 and Android browser -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.6.4/sweetalert2.common.js"></script>
+
 </head>
 <body>
     <div id="app">
@@ -58,6 +64,9 @@
                                 </a>
 
                                 <ul class="dropdown-menu" role="menu">
+                                    <li><a href="/home">Home</a></li>
+                                    <li><a href="/profile">Profile</a></li>
+                                    <li><a href="/map/driver">Sender Test</a></li>
                                     <li>
                                         <a href="{{ route('logout') }}"
                                             onclick="event.preventDefault();
@@ -87,6 +96,9 @@
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
+
+    @yield('js')
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://js.pusher.com/3.1/pusher.min.js"></script>
     <script>
@@ -103,10 +115,15 @@
       channel.bind('App\\Events\\DriverPusherEvent', addMessage);
 
       function addMessage(data) {
+        var
+          closeInSeconds = 3,
+          displayText = data.message + "\n" + "Please response in #1 seconds.",
+          timer;
         swal({
           title: 'You Have a Delivery Request?',
-          text: data.message,
-          type: 'warning',
+          text: displayText.replace(/#1/, closeInSeconds),
+          timer: closeInSeconds * 1000, 
+          type: 'info',
           showCancelButton: true,
           confirmButtonColor: '#3085d6',
           cancelButtonColor: '#d33',
@@ -120,6 +137,7 @@
             'Good Luck',
             'Delivery accepted.'
           )
+          clearInterval(timer);
           $('#acceptance').val("decline");
           $('#index').val(data.index);
           $('#id').val(data.id);
@@ -127,12 +145,42 @@
         }, function (dismiss) {
           // dismiss can be 'cancel', 'overlay',
           // 'close', and 'timer'
-          if (dismiss === 'cancel') {
+          clearInterval(timer);
+          if (dismiss === 'cancel' || dismiss === 'timer') {
             axios.post('/map/acceptance', {acceptance: "decline", index: data.index, id: data.id, drivers: data.drivers});
           }
         })
+        timer = setInterval(function() {
+          closeInSeconds--;
+            if (closeInSeconds < 0) {
+                clearInterval(timer);
+            }
+          $('.swal2-content').text(displayText.replace(/#1/, closeInSeconds));
+        }, 1000);
       }
     </script>
     @yield('js')
+    <script>
+      function idleLogout(){
+        var t;
+        window.onload = resetTimer;
+        window.onmousemove = resetTimer;
+        window.onmousedown = resetTimer;
+        window.onclick = resetTimer;
+        window.onscroll = resetTimer;
+        window.onkeypress = resetTimer;
+
+        function logout(){
+          window.location.href = 'logout';
+        }
+
+        function resetTimer(){
+          clearTimeout(t);
+          t = setTimeout(logout, 60000);
+        }
+      }
+    idleLogout();
+    </script>
+
 </body>
 </html>
