@@ -217,7 +217,7 @@ class DeliveryController extends Controller
 
             //  maybe create a event to tell user we found a driver
             $client = new Client();
-            $request = $client->request('POST', 'http://dabao.welory.com.my/driver/result')
+            $request = $client->request('POST', 'http://dabao.welory.com.my/api/driver/result')
                               ->addPostFiles(array('driver_name' => $driver->fname." ".$driver->lname,
                                                     'driver_id' => $driver->id,
                                                     'driver_image' => "testing image",
