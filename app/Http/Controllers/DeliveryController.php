@@ -124,7 +124,7 @@ class DeliveryController extends Controller
         return $place_name;
     }
 
-    public function getPotentialDriver($lat, $lang, $address, $time)
+    public function getPotentialDriver(Request $request)
     {
         // user app need to provide place_id and address and postcode of the user to driver app.
         // the mines = ChIJTS54v7HKzTERb_UYK_CQXtA
