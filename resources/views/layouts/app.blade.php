@@ -110,6 +110,18 @@
 
       //Subscribe to the channel we specified in our Laravel Event
       var channel = pusher.subscribe('channel-name-{{ auth()->id() }}');
+      var deliveryCancel = pusher.subscribe('delivery-cancel-{{ auth()->id() }}');
+
+      //Event for delivery cancel
+      deliveryCancel.bind('App\\Events\\DeliveryCancel', deliveryCancelMessage);
+
+      function deliveryCancelMessage(data){
+        swal(
+            'Good job!',
+            'You clicked the button!',
+            'success'
+          )
+      }
 
       //Bind a function to a Event (the full Laravel class)
       channel.bind('App\\Events\\DriverPusherEvent', addMessage);

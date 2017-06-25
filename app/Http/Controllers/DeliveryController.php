@@ -128,8 +128,8 @@ class DeliveryController extends Controller
     {
         // user app need to provide place_id and address and postcode of the user to driver app.
         // the mines = ChIJTS54v7HKzTERb_UYK_CQXtA
-        $User_Postcode = $this->getPostalCode($lat, $lang);
-        $User_PlaceId = $this->getPlaceId($lat, $lang);
+        $User_Postcode = $this->getPostalCode($request->latitude, $request->longitude);
+        $User_PlaceId = $this->getPlaceId($request->latitude, $request->longitude);
         $collection_driver = collect();
         $drivers = User::where('current_postcode', $User_Postcode)->where('online_status', 'online')->get();
         // dd($drivers);
@@ -165,9 +165,9 @@ class DeliveryController extends Controller
         }           
 
         $collection = collect($collection_driver)->pluck('id');
-        $this->sendPusher($collection->toArray(), 0, $address);
+        $this->sendPusher($collection->toArray(), 0, $request->address);
 
-        return "Event has been sent!";
+        return response(200);
     }
 
     // Listen for response, call the sender if no response or decline
@@ -205,7 +205,7 @@ class DeliveryController extends Controller
                 'amount' => '100',
                 'order_id' => '1',
                 'driver_id' => $request->id,
-                'status' => 'Delivering'
+                'status' => 'Awaiting'
                 ]);
             $delivery_id = Delivery::all()->last()->id;
 
@@ -215,5 +215,17 @@ class DeliveryController extends Controller
             return redirect()->action('DeliveryController@show', ['id' => $delivery_id]);
 
         }
+    }
+
+    public function getCancelResponse(Request $request)
+    {
+        $delivery = Delivery::find($request->delivery_id);
+
+        $delivery::update([
+            'status' => 'Canceled'
+            ]);
+
+        // create event to tell user delivery canceled
+        event(new \App\Events\DeliveryCancel("Order has been canceled.", $request->delivery_id));
     }
 }

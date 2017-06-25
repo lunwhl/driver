@@ -17,4 +17,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/map/driver/{lat}/{lang}/{address}/{time}', 'DeliveryController@getPotentialDriver');
+Route::get('/find/driver', 'DeliveryController@getPotentialDriver');
