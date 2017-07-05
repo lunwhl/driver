@@ -11,36 +11,29 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class DriverPusherEvent implements ShouldBroadcast
+class DeliveryCancel implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * Only (!) Public members will be serialized to JSON and sent to Pusher
-    **/
-    public $message, $id, $drivers, $index, $order_id;
-
+    public $message, $driver_id;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($message, $id, $index, $drivers, $order_id)
+    public function __construct($message, $driver_id)
     {
         $this->message = $message;
-        $this->id = $id;
-        $this->index = $index;
-        $this->drivers = $drivers;
-        $this->order_id = $order_id;
+        $this->driver_id = $driver_id;
     }
 
     /**
-     * Get the channels the event should be broadcast on.
+     * Get the channels the event should broadcast on.
      *
-     * @return array
+     * @return Channel|array
      */
     public function broadcastOn()
     {
-        return ['channel-name-' . $this->id];
+        return ['delivery-cancel-' . $this->driver_id];
     }
 }

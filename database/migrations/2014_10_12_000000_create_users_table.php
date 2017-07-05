@@ -35,8 +35,12 @@ class CreateUsersTable extends Migration
             $table->string('account')->nullable();
             $table->string('license')->nullable();
             $table->string('license_plate')->nullable();
-            $table->integer('online_status');
-            $table->integer('status');
+            $table->string('online_status');
+            $table->string('status');
+            $table->float('lat', 30, 20)->nullable();
+            $table->float('long', 30, 20)->nullable();
+            $table->string('current_postcode')->nullable();
+            $table->string('current_placeid')->nullable();
         });
     }
 
