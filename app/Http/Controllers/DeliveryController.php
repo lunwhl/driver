@@ -190,8 +190,16 @@ class DeliveryController extends Controller
         else
         {
             echo 'no more';
-            // No more driver
-            //  maybe create a event to tell user no driver is found
+            $client = new Client();
+            $request = $client->request('POST', 'http://dabao.welory.com.my/api/driver/result', [
+                                                    'form_params' => [
+                                                        'driver_name' => $driver->fname." ".$driver->lname,
+                                                        'driver_id' => $driver->id,
+                                                        'driver_image' => "testing image",
+                                                        'status' => "not found",
+                                                        'order_id' => $request->order_id
+                                                        ]
+                                                    ]);
         }
     }
 
