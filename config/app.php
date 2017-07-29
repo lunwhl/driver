@@ -180,6 +180,8 @@ return [
         'GoogleMaps\ServiceProvider\GoogleMapsServiceProvider',
         Intervention\Image\ImageServiceProvider::class,
         Barryvdh\Cors\ServiceProvider::class,
+        HighIdeas\UsersOnline\UsersOnlineServiceProvider::class,
+        HighIdeas\UsersOnline\Providers\UsersOnlineEventServiceProvider::class,
 
     ],
 

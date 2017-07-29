@@ -51,13 +51,24 @@ class DeliveryController extends Controller
         echo 'lat: ' . $lat . ' ' . 'lng: ' . $lng;
     }
 
-    public function getDistance($origin, $destination)
+    public function getDistance($userCo, $driverCo)
     {
-    	$response = \GoogleMaps::load('directions')
-        ->setParam (['origin' =>'place_id:'.$origin, 
-                'destination' => 'place_id:'.$destination])
+    	$response = \GoogleMaps::load('distancematrix')
+        ->setParam (['origins' => $driverCo, 
+                'destinations' => $userCo])
         ->get();
 
+        $distance = json_decode($response, true);
+        $collection = collect($distance);
+        $row_collection = collect($collection['rows'])->flatten(2);
+        $distance_collection = collect([]);
+        
+        foreach($row_collection as $key => $elements_collection)
+        {
+            $distance_collection->push([ "id" => $key, "distance" => $elements_collection['distance']['value']]);
+        }
+        $distance_collection->all();
+        dd($distance_collection);
         $collection = collect(json_decode($response)->routes);
         $collection_legs = collect($collection->first()->legs);
         $collection_distance = collect($collection_legs->first()->distance);
@@ -127,48 +138,55 @@ class DeliveryController extends Controller
 
     public function getPotentialDriver(Request $request)
     {
-        $lat = 3.06134909999999970000;
+        $user = new User;
+        $users = $user->allOnline();
+
+        $userCo = 3.06134909999999970000 . ',' . 101.67525400000000000000;
         $lng = 101.67525400000000000000;
         $address = "hehe";
         $order_id = $request->order_id;
         // user app need to provide place_id and address and postcode of the user to driver app.
         // the mines = ChIJTS54v7HKzTERb_UYK_CQXtA
-        $User_Postcode = $this->getPostalCode($lat, $lng);
-        $User_PlaceId = $this->getPlaceId($lat, $lng);
+        // $User_Postcode = $this->getPostalCode($lat, $lng);
+        // $User_PlaceId = $this->getPlaceId($lat, $lng);
 
-        $collection_driver = collect();
-        $drivers = User::where('online_status', 'online')->get();
+        // pluck latt, long 
+        $coordinates = $users->pluck('latLng')->implode('|');
+        $this->getDistance($userCo, $coordinates);
+
+        // $collection_driver = collect();
+        // $drivers = User::where('online_status', 'online')->get();
         // dd($drivers);
-        foreach($drivers as $driver)
-        {
-            // echo $this->getDistance('ChIJTS54v7HKzTERb_UYK_CQXtA', $driver->current_placeid);
-            if($this->getDistance($User_PlaceId, $driver->current_placeid) <= '15000')
-            {
-                $collection_driver->push($driver);
-            }
-        }
+        // foreach($drivers as $driver)
+        // {
+        //     // echo $this->getDistance('ChIJTS54v7HKzTERb_UYK_CQXtA', $driver->current_placeid);
+        //     if($this->getDistance($User_PlaceId, $driver->current_placeid) <= '15000')
+        //     {
+        //         $collection_driver->push($driver);
+        //     }
+        // }
 
-        if($collection_driver->isEmpty())
-        {
-            foreach($drivers as $driver)
-            {   
-                if($this->getDistance($User_PlaceId, $driver->current_placeid) <= '30000')
-                {
-                    $collection_driver->push($driver);
-                }
-            }
-        }
+        // if($collection_driver->isEmpty())
+        // {
+        //     foreach($drivers as $driver)
+        //     {   
+        //         if($this->getDistance($User_PlaceId, $driver->current_placeid) <= '30000')
+        //         {
+        //             $collection_driver->push($driver);
+        //         }
+        //     }
+        // }
 
-        if($collection_driver->isEmpty())
-        {
-            foreach($drivers as $driver)
-            {
-                if($this->getDistance($User_PlaceId, $driver->current_placeid) <= '45000')
-                {
-                    $collection_driver->push($driver);
-                }
-            }
-        }           
+        // if($collection_driver->isEmpty())
+        // {
+        //     foreach($drivers as $driver)
+        //     {
+        //         if($this->getDistance($User_PlaceId, $driver->current_placeid) <= '45000')
+        //         {
+        //             $collection_driver->push($driver);
+        //         }
+        //     }
+        // }           
 
         $collection = collect($collection_driver)->pluck('id');
         $this->sendPusher($collection->toArray(), 0, $address, $order_id);
@@ -190,8 +208,13 @@ class DeliveryController extends Controller
         else
         {
             echo 'no more';
-            // No more driver
-            //  maybe create a event to tell user no driver is found
+            $client = new Client();
+            $request = $client->request('POST', 'http://dabao.welory.com.my/api/driver/result', [
+                                                    'form_params' => [
+                                                        'status' => "not found",
+                                                        'order_id' => $request->order_id
+                                                        ]
+                                                    ]);
         }
     }
 

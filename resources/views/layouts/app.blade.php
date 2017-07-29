@@ -176,7 +176,7 @@
       }
     </script>
     @yield('js')
-    <script>
+    <!-- <script>
       function idleLogout(){
         var t;
         window.onload = resetTimer;
@@ -196,7 +196,7 @@
         }
       }
     idleLogout();
-    </script>
+    </script> -->
 
 </body>
 </html>
