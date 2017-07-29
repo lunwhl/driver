@@ -68,11 +68,16 @@ class DeliveryController extends Controller
             $distance_collection->push([ "id" => $key, "distance" => $elements_collection['distance']['value']]);
         }
         $distance_collection->all();
-        dd($distance_collection);
-        $collection = collect(json_decode($response)->routes);
-        $collection_legs = collect($collection->first()->legs);
-        $collection_distance = collect($collection_legs->first()->distance);
-        $distance = $collection_distance['value'];
+        $filtered = $distance_collection->filter(function ($item){
+            return $item['distance'] < 10000;
+        });
+        $filtered->all();
+        //collect([0, 12980], [1,16881])
+        dd($filtered);
+        // $collection = collect(json_decode($response)->routes);
+        // $collection_legs = collect($collection->first()->legs);
+        // $collection_distance = collect($collection_legs->first()->distance);
+        // $distance = $collection_distance['value'];
         
         return $distance;
     }
@@ -152,6 +157,7 @@ class DeliveryController extends Controller
 
         // pluck latt, long 
         $coordinates = $users->pluck('latLng')->implode('|');
+        // dd($coordinates);
         $this->getDistance($userCo, $coordinates);
 
         // $collection_driver = collect();
