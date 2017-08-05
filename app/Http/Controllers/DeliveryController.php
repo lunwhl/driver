@@ -81,6 +81,7 @@ class DeliveryController extends Controller
         });
         // dd($filtered_collection);
         return $filtered_collection;
+
     }
 
     public function storeCoordinate(Request $request)
@@ -180,13 +181,15 @@ class DeliveryController extends Controller
 
         // pluck latt, long 
         $coordinates = $users->pluck('latLng')->implode('|');
+
         $driversWithinDistance = $this->getDistance($userCo, $coordinates);
 
         $potentialDrivers = $users->intersectKey($driversWithinDistance);   
         // dd($potentialDrivers);     
 
         $collection = collect($potentialDrivers)->pluck('id');
-        dd($collection);
+        dd($collection);        
+
         $this->sendPusher($collection->toArray(), 0, $address, $order_id);
 
         return response("Fuck Haw", 202);
