@@ -34,6 +34,9 @@ Route::get('/map/driver', 'DeliveryController@getPotentialDriver');
 Route::post('/map/acceptance', 'DeliveryController@getDriverResponse');
 Route::get('/map/placename', 'DeliveryController@getPlaceName');
 
+Route::get('/availability', 'AvailabilityController@show');
+Route::post('/availability/add', 'AvailabilityController@create');
+
 Route::get('/delivery/index', 'DeliveryController@index');
 Route::get('/delivery/index/{id}', 'DeliveryController@show');
 Route::post('/delivery/complete', 'DeliveryController@updateFinish');

@@ -63,11 +63,13 @@
 <form id="post_id" method="post" action="/delivery/complete">
   {!! csrf_field() !!}
   <input style="display:none;" id="p_id" type="text" name="id">
+  <input style="display:none;" id="u_id" type="text" name="user_id">
 </form>
 @endsection
 @section('js')
 	<script>
 	$('#p_id').val("{{$delivery_id}}");
+	$('#u_id').val("{{$user_id}}");
 		function finish(){
 			swal(
 			  'Good job!',

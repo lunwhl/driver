@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Client;
 use App\Delivery;
 use App\User;
+use Carbon\Carbon;
+use App\Availability;
 
 class DeliveryController extends Controller
 {
@@ -17,9 +19,9 @@ class DeliveryController extends Controller
         return view('index.delivery', ['deliveries' => $deliveries]);
     }
 
-    public function show($delivery_id)
+    public function show($delivery_id, $user_id)
     {
-        return view('show.delivery', ['delivery_id' => $delivery_id]);
+        return view('show.delivery', ['delivery_id' => $delivery_id, 'user_id' => $user_id]);
     }
 
     public function updateFinish(Request $request)
@@ -28,6 +30,12 @@ class DeliveryController extends Controller
 
         $delivery->update([
             'status' => 'Finish'
+            ]);
+
+        $driver = User::fina($request->user_id);
+
+        $driver->update([
+            'delivery_status' => 'Finish'
             ]);
 
         return redirect('/delivery/index');
@@ -68,13 +76,11 @@ class DeliveryController extends Controller
             $distance_collection->push([ "id" => $key, "distance" => $elements_collection['distance']['value']]);
         }
         $distance_collection->all();
-        dd($distance_collection);
-        $collection = collect(json_decode($response)->routes);
-        $collection_legs = collect($collection->first()->legs);
-        $collection_distance = collect($collection_legs->first()->distance);
-        $distance = $collection_distance['value'];
-        
-        return $distance;
+        $filtered_collection = $distance_collection->filter(function ($item) {
+            return $item["distance"] > 3519;
+        });
+        // dd($filtered_collection);
+        return $filtered_collection;
     }
 
     public function storeCoordinate(Request $request)
@@ -145,6 +151,28 @@ class DeliveryController extends Controller
         $lng = 101.67525400000000000000;
         $address = "hehe";
         $order_id = $request->order_id;
+        // dd($users);
+
+        $delivery_datetime = Carbon::parse($request->delivery_datetime);
+
+        $availabilities = Availability::where('type',"available")
+                        ->where('status','activate')
+                        ->where('date', $delivery_datetime->format('o-m-d'))
+                        ->orWhere('day', $delivery_datetime->format('l'))
+                        ->where('start_time', '<=' , $delivery_datetime->format('h:i:s'))
+                        ->where('end_time', '>=' , $delivery_datetime->format('h:i:s'))
+                        ->get();
+
+        $availabilities_id = $availabilities->pluck('driver_id');
+        // dd($availabilities_id);
+        $availabilities_users = User::where('id', $availabilities_id)->where('delivery_status', 'Finish')->get();
+        foreach($availabilities_users as $availabilities_user){
+            $users->push($availabilities_user);
+        }
+        // dd($users);
+        $users = $users->unique("id");
+
+        // dd($users);
         // user app need to provide place_id and address and postcode of the user to driver app.
         // the mines = ChIJTS54v7HKzTERb_UYK_CQXtA
         // $User_Postcode = $this->getPostalCode($lat, $lng);
@@ -152,43 +180,13 @@ class DeliveryController extends Controller
 
         // pluck latt, long 
         $coordinates = $users->pluck('latLng')->implode('|');
-        $this->getDistance($userCo, $coordinates);
+        $driversWithinDistance = $this->getDistance($userCo, $coordinates);
 
-        // $collection_driver = collect();
-        // $drivers = User::where('online_status', 'online')->get();
-        // dd($drivers);
-        // foreach($drivers as $driver)
-        // {
-        //     // echo $this->getDistance('ChIJTS54v7HKzTERb_UYK_CQXtA', $driver->current_placeid);
-        //     if($this->getDistance($User_PlaceId, $driver->current_placeid) <= '15000')
-        //     {
-        //         $collection_driver->push($driver);
-        //     }
-        // }
+        $potentialDrivers = $users->intersectKey($driversWithinDistance);   
+        // dd($potentialDrivers);     
 
-        // if($collection_driver->isEmpty())
-        // {
-        //     foreach($drivers as $driver)
-        //     {   
-        //         if($this->getDistance($User_PlaceId, $driver->current_placeid) <= '30000')
-        //         {
-        //             $collection_driver->push($driver);
-        //         }
-        //     }
-        // }
-
-        // if($collection_driver->isEmpty())
-        // {
-        //     foreach($drivers as $driver)
-        //     {
-        //         if($this->getDistance($User_PlaceId, $driver->current_placeid) <= '45000')
-        //         {
-        //             $collection_driver->push($driver);
-        //         }
-        //     }
-        // }           
-
-        $collection = collect($collection_driver)->pluck('id');
+        $collection = collect($potentialDrivers)->pluck('id');
+        dd($collection);
         $this->sendPusher($collection->toArray(), 0, $address, $order_id);
 
         return response("Fuck Haw", 202);
@@ -252,7 +250,7 @@ class DeliveryController extends Controller
                               //driver_name, driver_id, driver_image, status, order_id
 
             // return driver to delivery page
-            return redirect()->action('DeliveryController@show', ['id' => $delivery_id]);
+            return redirect()->action('DeliveryController@show', ['id' => $delivery_id, 'user_id' => $driver->id]);
             // echo $request->order_id;
 
         }
