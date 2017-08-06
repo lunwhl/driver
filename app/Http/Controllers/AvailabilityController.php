@@ -9,53 +9,75 @@ use App\Availability;
 class AvailabilityController extends Controller
 {
 	public function show(){
-
 		return view ('index.availability');
 	}
+
+    public function index(){
+        $auth = Auth::user();
+
+        $availabilities = Availability::where('driver_id', $auth->id)->where('status', 'Alive')->get();
+        
+        return view('show.availability', ['availabilities' => $availabilities]);
+    }
+
+    public function editing($availability_id){
+        $availability = Availability::where('id', $availability_id)->first();
+
+        return view('edit.availabilityediting', ['availability' => $availability]);
+    }
+
+    public function edit($availability_id){
+
+        $availability = Availability::where('id', $availability_id)->first();
+
+        return view('edit.availability', ['availability' => $availability]);
+    }
 
 	public function create(Request $request){
 
 		$auth = Auth::id();
 
-        $type = $request->type ? "available" : "not_available";
+        $type = $request->type ? "Activate" : "Not_Activate";
 
         //check the isset of each ID?
         $availability = Availability::create([
             'date' => $request->date,
             'start_time' => $request->start_time,
             'end_time' =>$request->end_time,
-            'type' =>$type,
+            'type' => $type,
             'day' => $request->day,
             'driver_id' => $auth,
-            'status' => "activate",
+            'status' => "Alive",
             ]);
 
+        return redirect()->action('AvailabilityController@index');
 	}
 
-    public function index(Request $request){ 
-        Log::info($request);
-        ////aaaaaaa
-        $delivery_datetime = Carbon::parse($request->delivery_datetime);
+    public function update(Request $request, $availability_id){
 
-        $availabilities = Availability::where('type',"available")
-                        ->where('status','activate')
-                        ->where('date', $delivery_datetime->format('o-m-d'))
-                        ->orWhere('day', $delivery_datetime->format('l'))
-                        ->where('start_time', '<=' , $delivery_datetime->format('h:i:s'))
-                        ->where('end_time', '>=' , $delivery_datetime->format('h:i:s'))
-                        ->get();
+        $availability = Availability::where("id", $availability_id)->first();
 
-        $availabilities_id = $availabilities->pluck('chef_id');
+        $type = $request->type ? "Activate" : "Not_Activate";
 
-        $postcode = $request->postcode;    
-        $chefs = Chef::whereIn('id', $availabilities_id)->where('postcode',$postcode)->get();
-        if($request->isHalal == true){            
-            $users = User::where('is_halal','1')->get()->pluck('id');         
-            $chefs = $chefs->whereIn('user_id',$users)->get();         
-        }
-        
-        return $chefs->load('medias');
-        //aaaaaaaa
+        $availability->update([
+            'date' => $request->date,
+            'start_time' => $request->start_time,
+            'end_time' =>$request->end_time,
+            'type' => $type,
+            'day' => $request->day,
+            'status' => "Alive",
+            ]);
 
+        return redirect()->action('AvailabilityController@index');
+    }
+
+    public function delete($availability_id){
+        $availability = Availability::where("id", $availability_id)->first();
+
+        $availability->update([
+            'status' => "Deleted",
+            ]);
+
+        return redirect()->back();
     }
 }
