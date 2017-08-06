@@ -156,19 +156,22 @@ class DeliveryController extends Controller
 
         $delivery_datetime = Carbon::parse($request->delivery_datetime);
 
-        $availabilities = Availability::where('type',"available")
-                        ->where('status','activate')
+        // get users that are available
+        $availabilities = Availability::where('type',"Activate")
+                        ->where('status','Alive')
                         ->where('date', $delivery_datetime->format('o-m-d'))
                         ->orWhere('day', $delivery_datetime->format('l'))
                         ->where('start_time', '<=' , $delivery_datetime->format('h:i:s'))
                         ->where('end_time', '>=' , $delivery_datetime->format('h:i:s'))
                         ->get();
 
+        // collect all id from available list
         $availabilities_id = $availabilities->pluck('driver_id');
-        // dd($availabilities_id);
-        $availabilities_users = User::where('id', $availabilities_id)->where('delivery_status', 'Finish')->get();
-        foreach($availabilities_users as $availabilities_user){
+        if($availabilities_id = null || $availabilities_id->isEmpty()){
+            $availabilities_users = User::where('id', $availabilities_id)->where('delivery_status', 'Finish')->get();
+            foreach($availabilities_users as $availabilities_user){
             $users->push($availabilities_user);
+            }
         }
         // dd($users);
         $users = $users->unique("id");
@@ -188,7 +191,6 @@ class DeliveryController extends Controller
         // dd($potentialDrivers);     
 
         $collection = collect($potentialDrivers)->pluck('id');
-        dd($collection);        
 
         $this->sendPusher($collection->toArray(), 0, $address, $order_id);
 

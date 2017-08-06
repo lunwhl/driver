@@ -3,48 +3,38 @@
     <div class="container">
         <div class="row">
             <div class="col-md-8 col-md-offset-2">
-            <div class="pull-right"><a class="btn btn-primary" href="/availability">Back</a></div>
                 <div class="panel panel-default">
-                    <div class="panel-heading">Availability</div>
+                <div class="pull-right"><a class="btn btn-primary" href="/availability">Back</a></div>
+                    <div class="panel-heading">Edit Availability </div>
                     <div class="panel-body">
-                        <form id="av_form" class="form-horizontal" role="form" method="POST" action="/availability/add" enctype="multipart/form-data">
+                        <form id="av_form" class="form-horizontal" role="form" method="POST" action="/availability/{{$availability->id}}" enctype="multipart/form-data">
                             {{ csrf_field() }}
-                                        {{-- <div class="form-group">
-                                            <label class="col-md-offset-1 col-md-10"><font color="red">1. Add Media to correspond category</font></label>
-                                        </div> --}}
-                                        <div class="form-group{{ $errors->has('date') ? ' has-error' : '' }}" id="date_input">
-                                            <label class="col-md-offset-4 col-md-8"><font color="red">You can edit availability start 7 day advance</font></label>
+                                        <div class="form-group{{ $errors->has('price') ? ' has-error' : '' }}" id="date_input">
                                             <label for="food_image" class="col-md-4 control-label">Date</label>
 
                                             <div class="col-md-6">
-                                                <input id="date" type="date" class="form-control" name="date" value="{{ old('date') }}" required autofocus>
-
-                                                @if ($errors->has('date'))
+                                                <input id="date" type="date" class="form-control" name="date" value="{{$availability->date}}">
+                                            </div>
+                                            @if ($errors->has('date'))
                                                 <span class="help-block">
                                                     <strong>{{ $errors->first('date') }}</strong>
                                                 </span>
-                                                @endif
-                                            </div>
+                                            @endif
                                         </div>
 
-                                        <div class="form-group{{ $errors->has('start_time') ? ' has-error' : '' }}">
+                                        <div class="form-group{{ $errors->has('category') ? ' has-error' : '' }}">
                                             <label for="category" class="col-md-4 control-label">StartTime</label>
 
                                             <div class="col-md-6">
-                                                <input id="startTime" type="time" class="form-control" name="start_time" value="{{ old('start_time') }}" required autofocus>
-                                                @if ($errors->has('start_time'))
-                                                    <span class="help-block">
-                                                        <strong>{{ $errors->first('start_time') }}</strong>
-                                                    </span>
-                                                @endif
+                                                <input id="startTime" type="time" class="form-control" name="start_time" value="{{$availability->start_time}}">
                                             </div>
                                         </div>
 
-                                        <div class="form-group{{ $errors->has('end_time') ? ' has-error' : '' }}">
+                                        <div class="form-group{{ $errors->has('category') ? ' has-error' : '' }}">
                                             <label for="category" class="col-md-4 control-label">EndTime</label>
 
                                             <div class="col-md-6">
-                                                <input id="endTime" type="time" class="form-control" name="end_time" value="{{ old('start_time') }}" required autofocus >
+                                                <input id="endTime" type="time" class="form-control" name="end_time" value="{{$availability->end_time}}" >
                                             </div>
                                         </div>
 
@@ -52,7 +42,7 @@
                                             <label for="category" class="col-md-4 control-label">Day</label>
 
                                             <div class="col-md-6">
-                                                <select class="form-control" name="day" required autofocus >
+                                                <select class="form-control" name="day" id="day">
                                                 
                                                     <option value="Monday">Monday</option>
                                                     <option value="Tuesday">Tuesday</option>
@@ -68,16 +58,19 @@
 
                                         <div class="form-group{{ $errors->has('category') ? ' has-error' : '' }}">
                                             <label for="category" class="col-md-4 control-label">Available</label>
-
                                             <div class="col-md-6">
-                                                <input id="type" type="checkbox" class="form-control" name="type" checked >
+                                                @if($availability->type === "Activate")
+                                                    <input id="type" type="checkbox" class="form-control" name="type" checked>
+                                                @else
+                                                    <input id="type" type="checkbox" class="form-control" name="type">
+                                                @endif
                                             </div>
                                         </div>
 
                             <div class="form-group">
                                 <div class="col-md-6 col-md-offset-4">
-                                    <a onclick="checkDate()" class="btn btn-primary">
-                                        Add
+                                    <a class="btn btn-primary" onclick="checkDate()">
+                                        Save
                                     </a>
                                 </div>
                             </div>
@@ -86,32 +79,21 @@
                 </div>
             </div>
         </div>
-
-
     </div>
 @endsection
 @section('js')
 <script type="text/javascript">
+var $val = "{{$availability->type}}";
 $( document ).ready(function() {
 
-    //Current Date
-    var date = new Date();
-    date.setDate(date.getDate() + 8);
-
-    // alert(dateMsg);
-    var day = ("0" + (date.getDate())).slice(-2);
-    var month = ("0" + (date.getMonth() + 1)).slice(-2);
-
-    var today = date.getFullYear()+"-"+(month)+"-"+(day) ;
-    $('#date').val(today);
-
-
+    //Assign value of day 
+    document.getElementById('day').value = "{{$availability->day}}";
 });
 
 function checkDate() {
             var dateInput = $("#date").val(); // For JQuery
 
-            var date = new Date();
+           var date = new Date();
             date.setDate(date.getDate() + 8);
 
             var day = ("0" + date.getDate()).slice(-2);
@@ -127,6 +109,7 @@ function checkDate() {
                 alert("You can only set your date later than " + day_ahead);
             }
         }
+
 
 </script>
 @endsection

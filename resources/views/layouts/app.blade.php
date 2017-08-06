@@ -99,8 +99,6 @@
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
 
-    @yield('js')
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://js.pusher.com/3.1/pusher.min.js"></script>
     <script>
