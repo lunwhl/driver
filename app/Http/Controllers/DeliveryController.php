@@ -312,7 +312,8 @@ class DeliveryController extends Controller
                               //driver_name, driver_id, driver_image, status, order_id
 
             // return driver to delivery page
-            return redirect()->action('DeliveryController@show', ['id' => $delivery_id, 'user_id' => $driver->id]);
+            // return redirect()->action('DeliveryController@show', ['id' => $delivery_id, 'user_id' => $driver->id]);
+            // return redirect()->back();
             // echo $request->order_id;
 
         }
@@ -331,7 +332,7 @@ class DeliveryController extends Controller
     }
 
     public function getPickupDetails(Request $request){
-        $delivery = Delivery::where('order_id', $request->order_id)->last();
+        $delivery = Delivery::where('order_id', $request->order_id)->first();
 
         $delivery->addresses()->create([
                 'type' => 'pickup',
