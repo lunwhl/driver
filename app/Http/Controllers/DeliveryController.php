@@ -280,7 +280,7 @@ class DeliveryController extends Controller
         {
             // Store delivery record
             $driver = User::find($request->id);
-            Delivery::create([
+            $delivery = Delivery::create([
                 'delivery_location' => $request->address,
                 'current_location' => $this->getPlaceName($driver->current_placeid),
                 'amount' => '100',
