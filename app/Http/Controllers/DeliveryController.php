@@ -76,8 +76,9 @@ class DeliveryController extends Controller
             $distance_collection->push([ "id" => $key, "distance" => $elements_collection['distance']['value']]);
         }
         $distance_collection->all();
+        // dd($distance_collection);
         $filtered_collection = $distance_collection->filter(function ($item) {
-            return $item["distance"] > 3519;
+            return $item["distance"] > 1;
         });
         // dd($filtered_collection);
         return $filtered_collection;
@@ -148,6 +149,8 @@ class DeliveryController extends Controller
         $user = new User;
         $users = $user->allOnline();
 
+        $userLat = $request->latitude;
+        $userLong = $request->longitude;
         $userCo = 3.06134909999999970000 . ',' . 101.67525400000000000000;
         $lng = 101.67525400000000000000;
         $address = "hehe";
@@ -165,15 +168,22 @@ class DeliveryController extends Controller
                         ->where('end_time', '>=' , $delivery_datetime->format('h:i:s'))
                         ->get();
 
+        // dd($availabilities);
+
         // collect all id from available list
         $availabilities_id = $availabilities->pluck('driver_id');
-        if($availabilities_id = null || $availabilities_id->isEmpty()){
-            $availabilities_users = User::where('id', $availabilities_id)->where('delivery_status', 'Finish')->get();
+        // dd($availabilities_id);
+        // dd($availabilities_id->isEmpty());
+        if($availabilities_id->isNotEmpty()){
+            // dd($availabilities_id);
+            $availabilities_users = User::whereIn('id', $availabilities_id)->where('delivery_status', 'Finish')->get();
+            // dd($availabilities_users);
             foreach($availabilities_users as $availabilities_user){
             $users->push($availabilities_user);
             }
         }
         // dd($users);
+        // dd($availabilities_id);
         $users = $users->unique("id");
 
         // dd($users);
@@ -186,27 +196,66 @@ class DeliveryController extends Controller
         $coordinates = $users->pluck('latLng')->implode('|');
 
         $driversWithinDistance = $this->getDistance($userCo, $coordinates);
-
-        $potentialDrivers = $users->intersectKey($driversWithinDistance);   
+        // dd($driversWithinDistance);
+        // $potentialDrivers = $users->intersectKey($driversWithinDistance);   
         // dd($potentialDrivers);     
+        $i = 0;
+        foreach($users as $key => $user){
+            $user->distance = $driversWithinDistance[$i]["distance"];
+            $i++;
+        }
+        // dd($users->sortBy('distance'));
+        $potentialDrivers = $users->sortBy('distance');
 
         $collection = collect($potentialDrivers)->pluck('id');
 
-        $this->sendPusher($collection->toArray(), 0, $address, $order_id);
+        $this->sendPusher($collection->toArray(), 0, $address, $order_id, $userLat, $userLong);
 
         return response("Fuck Haw", 202);
     }
 
     // Listen for response, call the sender if no response or decline
     // Send the message to the driver
-    public function sendPusher($drivers, $index, $address, $order_id)
+    public function sendPusher($drivers, $index, $address, $order_id, $userLat, $userLong)
     {
         if( $index != sizeOf($drivers) )
         {
             // Still have drivers to send
             // Get the next driver
+            $is_online_user = User::find($drivers[$index]);
+            if($is_online_user->isOnline()){
+                event(new \App\Events\DriverPusherEvent($address, $drivers[$index], $index, $drivers, $order_id));
+            }else{
+                $driver = User::find($drivers[$index]);
+                $delivery = Delivery::create([
+                    'delivery_location' => $address,
+                    'current_location' => $this->getPlaceName($driver->current_placeid),
+                    'amount' => '100',
+                    'order_id' => $order_id,
+                    'driver_id' => $drivers[$index],
+                    'status' => 'Awaiting'
+                    ]);
 
-            event(new \App\Events\DriverPusherEvent($address, $drivers[$index], $index, $drivers, $order_id));
+                $delivery->addresses()->create([
+                    'type' => 'delivery',
+                    'address_line' => $address,
+                    'latitude' => $userLat,
+                    'longitude' => $userLong
+                    ]);
+                $delivery_id = Delivery::all()->last()->id;
+
+                //  maybe create a event to tell user we found a driver
+                $client = new Client();
+                $request = $client->request('POST', 'http://dabao.welory.com.my/api/driver/result', [
+                                                        'form_params' => [
+                                                            'driver_name' => $driver->fname." ".$driver->lname,
+                                                            'driver_id' => $driver->id,
+                                                            'driver_image' => "testing image",
+                                                            'status' => "found",
+                                                            'order_id' => $request->order_id
+                                                            ]
+                                                        ]);
+            }
         }
         else
         {
@@ -239,6 +288,13 @@ class DeliveryController extends Controller
                 'driver_id' => $request->id,
                 'status' => 'Awaiting'
                 ]);
+
+            $delivery->addresses()->create([
+                    'type' => 'delivery',
+                    'address_line' => $request->address,
+                    'latitude' => $request->userLat,
+                    'longitude' => $request->userLong
+                    ]);
             $delivery_id = Delivery::all()->last()->id;
 
             //  maybe create a event to tell user we found a driver
@@ -271,5 +327,18 @@ class DeliveryController extends Controller
 
         // create event to tell user delivery canceled
         event(new \App\Events\DeliveryCancel("Order has been canceled.", $request->delivery_id));
+    }
+
+    public function getPickupDetails(Request $request){
+        $delivery = Delivery::where('order_id', $request->order_id)->last();
+
+        $delivery->addresses()->create([
+                'type' => 'pickup',
+                'address_line' => $request->pickup_address,
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
+            ]);
+
+        return $delivery->user;
     }
 }

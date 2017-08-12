@@ -28,7 +28,8 @@ class AddNewInfoToAvailabilitiesTable extends Migration
     public function down()
     {
         Schema::table('availabilities', function (Blueprint $table) {
-            //
+            $this->dropColumn(["day", "type"]);
+            $this->renameColumn('start_time', 'begin_time');
         });
     }
 }

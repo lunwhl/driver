@@ -14,8 +14,6 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.6.4/sweetalert2.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.6.4/sweetalert2.css">
@@ -66,7 +64,7 @@
                                 <ul class="dropdown-menu" role="menu">
                                     <li><a href="/home">Home</a></li>
                                     <li><a href="/profile">Profile</a></li>
-                                    <li><a href="/map/driver">Sender Test</a></li>
+                                    <li><a href="/availability">Availability</a></li>
                                     <li>
                                         <a href="{{ route('logout') }}"
                                             onclick="event.preventDefault();
@@ -161,7 +159,7 @@
           // 'close', and 'timer'
           clearInterval(timer);
           if (dismiss === 'cancel' || dismiss === 'timer') {
-            axios.post('/map/acceptance', {acceptance: "decline", index: data.index, id: data.id, drivers: data.drivers, order_id: data.order_id, address: data.message});
+            axios.post('/map/acceptance', {acceptance: "decline", index: data.index, id: data.id, drivers: data.drivers, order_id: data.order_id, address: data.message, userLat: data.userLat, userLong: data.userLong});
           }
         })
         timer = setInterval(function() {

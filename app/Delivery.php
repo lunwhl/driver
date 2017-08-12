@@ -14,6 +14,21 @@ class Delivery extends Model
     	return $this->belongsTo('App\User');
     }
 
+    public function addresses()
+    {
+        return $this->hasMany('App\Address');
+    }
+
+    public function destination()
+    {
+        return $this->hasMany('App\Address')->where('type', 'delivery')->first();
+    }
+
+    public function pickup()
+    {
+        return $this->hasMany('App\Address')->where('type', 'pickup')->first();
+    }
+
     public function geoCoding($test)
     {
     	$response = \GoogleMaps::load('geocoding')
