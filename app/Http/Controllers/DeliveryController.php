@@ -278,7 +278,7 @@ class DeliveryController extends Controller
         }
         else
         {
-            dd($request);
+            // dd($request);
             // Store delivery record
             $driver = User::find($request->id);
             $delivery = Delivery::create([
