@@ -292,8 +292,8 @@ class DeliveryController extends Controller
             $delivery->addresses()->create([
                     'type' => 'delivery',
                     'address_line' => $request->address,
-                    'latitude' => $request->userLat,
-                    'longitude' => $request->userLong
+                    'latitude' => $request->latitude,
+                    'longitude' => $request->longitude
                     ]);
             $delivery_id = Delivery::all()->last()->id;
 
