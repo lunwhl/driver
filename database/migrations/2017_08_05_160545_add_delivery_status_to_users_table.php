@@ -26,7 +26,7 @@ class AddDeliveryStatusToUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $this->dropColumn('delivery_status');
         });
     }
 }

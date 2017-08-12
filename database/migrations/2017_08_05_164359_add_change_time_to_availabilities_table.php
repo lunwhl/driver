@@ -27,7 +27,8 @@ class AddChangeTimeToAvailabilitiesTable extends Migration
     public function down()
     {
         Schema::table('availabilities', function (Blueprint $table) {
-            //
+            
+            $this->dropColumn(["start_time", "end_time"]);
         });
     }
 }

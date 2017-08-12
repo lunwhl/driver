@@ -26,7 +26,8 @@ class AddStatusToAvailabilitiesTable extends Migration
     public function down()
     {
         Schema::table('availabilities', function (Blueprint $table) {
-            //
+            
+            $this->dropColumn("status");
         });
     }
 }

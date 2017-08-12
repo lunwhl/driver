@@ -274,10 +274,11 @@ class DeliveryController extends Controller
     {
         if( strcasecmp($request->acceptance, 'decline') == 0 )
         {
-            $this->sendPusher($request->drivers, $request->index + 1, $request->address, $request->order_id);
+            $this->sendPusher($request->drivers, $request->index + 1, $request->address, $request->order_id,$request->latitude, $request->longitude);
         }
         else
         {
+            dd($request);
             // Store delivery record
             $driver = User::find($request->id);
             $delivery = Delivery::create([
