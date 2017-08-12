@@ -224,7 +224,7 @@ class DeliveryController extends Controller
             // Get the next driver
             $is_online_user = User::find($drivers[$index]);
             if($is_online_user->isOnline()){
-                event(new \App\Events\DriverPusherEvent($address, $drivers[$index], $index, $drivers, $order_id));
+                event(new \App\Events\DriverPusherEvent($address, $drivers[$index], $index, $drivers, $order_id, $userLat, $userLong));
             }else{
                 $driver = User::find($drivers[$index]);
                 $delivery = Delivery::create([
