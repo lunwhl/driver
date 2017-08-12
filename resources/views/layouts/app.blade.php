@@ -88,6 +88,8 @@
                   <input style="display:none;" id="id" type="text" name="id">
                   <input style="display:none;" id="address" type="text" name="address">
                   <input style="display:none;" id="order_id" type="text" name="order_id">
+                  <input style="display:none;" id="longitude" type="text" name="longitude">
+                  <input style="display:none;" id="latitude" type="text" name="latitude">
                 </form>
             </div>
         </nav>
@@ -153,6 +155,8 @@
           $('#id').val(data.id);
           $('#address').val(data.message);
           $('#order_id').val(data.order_id);
+          $('#latitude').val(data.userLat);
+          $('#longitude').val(data.userLong);
           $('#acceptance').submit();
         }, function (dismiss) {
           // dismiss can be 'cancel', 'overlay',
