@@ -232,7 +232,7 @@ class DeliveryController extends Controller
                     'current_location' => $this->getPlaceName($driver->current_placeid),
                     'amount' => '100',
                     'order_id' => $order_id,
-                    'driver_id' => $drivers[$index],
+                    'user_id' => $drivers[$index],
                     'status' => 'Awaiting'
                     ]);
 
@@ -285,7 +285,7 @@ class DeliveryController extends Controller
                 'current_location' => $this->getPlaceName($driver->current_placeid),
                 'amount' => '100',
                 'order_id' => $request->order_id,
-                'driver_id' => $request->id,
+                'user_id' => $request->id,
                 'status' => 'Awaiting'
                 ]);
 
