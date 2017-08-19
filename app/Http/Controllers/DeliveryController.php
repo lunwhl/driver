@@ -281,7 +281,7 @@ class DeliveryController extends Controller
     {
         if( strcasecmp($request->acceptance, 'decline') == 0 )
         {
-            $this->sendPusher($request->drivers, $request->index + 1, $request->address, $request->order_id,$request->latitude, $request->longitude);
+            $this->sendPusher($request->drivers, $request->index + 1, $request->address, $request->order_id,$request->userLat, $request->userLong);
         }
         else
         {
