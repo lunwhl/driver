@@ -126,7 +126,7 @@
           cancelButtonColor: '#d33',
           confirmButtonText: 'Yes, delete it!'
         }).then(function () {
-            window.location.href = "/delivery/index/" + data.driver_id;
+            window.location.href = "/delivery/index/" + data.delivery_id;
         })
       }
 
