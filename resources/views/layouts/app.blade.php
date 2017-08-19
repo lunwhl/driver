@@ -124,7 +124,7 @@
           type: 'success',
           confirmButtonColor: '#3085d6',
           cancelButtonColor: '#d33',
-          confirmButtonText: 'Yes, delete it!'
+          confirmButtonText: 'OK'
         }).then(function () {
             window.location.href = "/delivery/index/" + data.delivery_id;
         })
