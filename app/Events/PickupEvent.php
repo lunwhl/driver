@@ -17,18 +17,19 @@ class PickupEvent implements ShouldBroadcast
     /**
      * Only (!) Public members will be serialized to JSON and sent to Pusher
     **/
-    public $message, $address, $delivery_id;
+    public $message, $address, $delivery_id, $driver_id;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($message, $address, $delivery_id)
+    public function __construct($message, $address, $delivery_id, $driver_id)
     {
         $this->message = $message;
         $this->address = $address;
         $this->$delivery_id = $delivery_id;
+        $this->$driver_id = $driver_id;
     }
 
     /**
@@ -38,6 +39,6 @@ class PickupEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return ['channel-pickup-' . $this->id];
+        return ['channel-pickup-' . $this->driver_id];
     }
 }

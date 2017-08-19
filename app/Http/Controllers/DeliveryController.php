@@ -350,7 +350,9 @@ class DeliveryController extends Controller
                 'longitude' => $request->longitude,
             ]);
 
-        event(new \App\Events\PickupEvent("Order Accepted.", $request->pickup_address, $delivery->id));
+        $driver_id = auth()->id();
+
+        event(new \App\Events\PickupEvent("Order Accepted.", $request->pickup_address, $delivery->id, $driver_id));
 
         return $delivery->user;
     }
