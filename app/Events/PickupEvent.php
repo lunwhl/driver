@@ -46,6 +46,7 @@ class PickupEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
+        Log::info("broadcastOn: " . $this->$driver_id);
         return ['channel-pickup-' . $this->driver_id];
     }
 }
