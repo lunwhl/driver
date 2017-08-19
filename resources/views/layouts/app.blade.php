@@ -140,7 +140,7 @@
 
       function addMessage(data) {
         var
-          closeInSeconds = 3,
+          closeInSeconds = 10,
           displayText = data.message + "\n" + "Please response in #1 seconds.",
           timer;
         swal({
