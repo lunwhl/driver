@@ -195,6 +195,8 @@ class DeliveryController extends Controller
         // pluck latt, long 
         $coordinates = $users->pluck('latLng')->implode('|');
 
+        dd($coordinates);
+
         $driversWithinDistance = $this->getDistance($userCo, $coordinates);
         // dd($driversWithinDistance);
         // $potentialDrivers = $users->intersectKey($driversWithinDistance);   
