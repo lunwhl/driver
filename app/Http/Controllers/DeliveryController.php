@@ -14,7 +14,7 @@ class DeliveryController extends Controller
 {
     public function index()
     {
-        $deliveries = Delivery::where('status', 'Finish')->where('driver_id', auth()->user()->id)->get();
+        $deliveries = Delivery::where('status', 'Finish')->where('user_id', auth()->user()->id)->get();
 
         return view('index.delivery', ['deliveries' => $deliveries]);
     }
@@ -151,9 +151,9 @@ class DeliveryController extends Controller
 
         $userLat = $request->latitude;
         $userLong = $request->longitude;
-        $userCo = 3.06134909999999970000 . ',' . 101.67525400000000000000;
+        $userCo = $userLat . ',' . $userLong;
         $lng = 101.67525400000000000000;
-        $address = "hehe";
+        $address = $request->address;
         $order_id = $request->order_id;
         // dd($users);
 
@@ -246,7 +246,7 @@ class DeliveryController extends Controller
 
                 //  maybe create a event to tell user we found a driver
                 $client = new Client();
-                $request = $client->request('POST', 'http://dabao.welory.com.my/api/driver/result', [
+                $client->request('POST', 'http://dabao.welory.com.my/api/driver/result', [
                                                         'form_params' => [
                                                             'driver_name' => $driver->fname." ".$driver->lname,
                                                             'driver_id' => $driver->id,
@@ -261,7 +261,7 @@ class DeliveryController extends Controller
         {
             echo 'no more';
             $client = new Client();
-            $request = $client->request('POST', 'http://dabao.welory.com.my/api/driver/result', [
+            $client->request('POST', 'http://dabao.welory.com.my/api/driver/result', [
                                                     'form_params' => [
                                                         'status' => "not found",
                                                         'order_id' => $request->order_id
@@ -300,7 +300,7 @@ class DeliveryController extends Controller
 
             //  maybe create a event to tell user we found a driver
             $client = new Client();
-            $request = $client->request('POST', 'http://dabao.welory.com.my/api/driver/result', [
+            $client->request('POST', 'http://dabao.welory.com.my/api/driver/result', [
                                                     'form_params' => [
                                                         'driver_name' => $driver->fname." ".$driver->lname,
                                                         'driver_id' => $driver->id,
@@ -340,6 +340,8 @@ class DeliveryController extends Controller
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
             ]);
+
+        event(new \App\Events\PickupEvent("Order Accepted.", $request->pickup_address));
 
         return $delivery->user;
     }

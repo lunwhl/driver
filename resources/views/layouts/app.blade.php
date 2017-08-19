@@ -111,6 +111,18 @@
       //Subscribe to the channel we specified in our Laravel Event
       var channel = pusher.subscribe('channel-name-{{ auth()->id() }}');
       var deliveryCancel = pusher.subscribe('delivery-cancel-{{ auth()->id() }}');
+      var pickupChannel = pusher.subscribe('channel-pickup-{{ auth()->id() }}');
+
+      //Pickup Event
+      deliveryCancel.bind('App\\Events\\DeliveryCancel', pickUpMessage);
+
+      function pickUpMessage(data){
+        swal(
+            data.message,
+            data.address,
+            'success'
+          )
+      }
 
       //Event for delivery cancel
       deliveryCancel.bind('App\\Events\\DeliveryCancel', deliveryCancelMessage);
