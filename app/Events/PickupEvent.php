@@ -29,13 +29,8 @@ class PickupEvent implements ShouldBroadcast
     {
         $this->message = $message;
         $this->address = $address;
-        $this->$delivery_id = $delivery_id;
-        $this->$driver_id = $driver_id;
-
-        Log::info("pickup: " . $delivery_id);
-        Log::info("pickup: this d_id " . $this->$delivery_id);
-        Log::info("pickup: driver_id " . $driver_id);
-        Log::info("pickup: this driver_id " . $this->$driver_id);
+        $this->delivery_id = $delivery_id;
+        $this->driver_id = $driver_id;
 
     }
 
@@ -46,7 +41,6 @@ class PickupEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        Log::info("broadcastOn: " . $this->$driver_id);
         return ['channel-pickup-' . $this->driver_id];
     }
 }
