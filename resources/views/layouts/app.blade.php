@@ -115,7 +115,7 @@
       var pickupChannel = pusher.subscribe('channel-pickup-{{ auth()->id() }}');
 
       //Pickup Event
-      pickupChannel.bind('App\\Events\\DriverPusherEvent', pickUpMessage);
+      pickupChannel.bind('App\\Events\\PickupEvent', pickUpMessage);
 
       function pickUpMessage(data){
         swal(
