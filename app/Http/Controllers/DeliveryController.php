@@ -131,9 +131,7 @@ class DeliveryController extends Controller
     }
 
     public function getPlaceName($driverCo)
-    {
-        echo $driverCo;
-        $response = \GoogleMaps::load('geocoding')
+    {        $response = \GoogleMaps::load('geocoding')
                     ->setParamByKey('latlng', $driverCo)
                     ->get();
 
