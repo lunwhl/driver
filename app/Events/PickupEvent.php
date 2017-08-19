@@ -33,6 +33,10 @@ class PickupEvent implements ShouldBroadcast
         $this->$driver_id = $driver_id;
 
         Log::info("pickup: " . $delivery_id);
+        Log::info("pickup: this d_id " . $this->$delivery_id);
+        Log::info("pickup: driver_id " . $driver_id);
+        Log::info("pickup: this driver_id " . $this->$driver_id);
+
     }
 
     /**
