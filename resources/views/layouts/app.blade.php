@@ -118,11 +118,18 @@
       pickupChannel.bind('App\\Events\\PickupEvent', pickUpMessage);
 
       function pickUpMessage(data){
-        swal(
-            data.message,
-            data.address,
-            'success'
+        swal({
+          title: data.message,
+          text: data.address,
+          type: 'success',
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, delete it!'
+        }).then(function () {
+          swal(
+            window.location.href = "/delivery/index/" + data.driver_id;
           )
+        })
       }
 
       //Event for delivery cancel
