@@ -130,10 +130,11 @@ class DeliveryController extends Controller
         return $place_id;
     }
 
-    public function getPlaceName($place_id)
+    public function getPlaceName($userCo, $driverCo)
     {
         $response = \GoogleMaps::load('geocoding')
-                    ->setParamByKey('place_id', $place_id) 
+                    ->setParam (['origins' => $driverCo, 
+                'destinations' => $userCo])
                     ->get();
 
         $area = json_decode($response, true);
@@ -231,7 +232,7 @@ class DeliveryController extends Controller
                 $driver = User::find($drivers[$index]);
                 $delivery = Delivery::create([
                     'delivery_location' => $address,
-                    'current_location' => $this->getPlaceName($driver->current_placeid),
+                    'current_location' => $this->getPlaceName($driver->lat, $driver->long),
                     'amount' => '100',
                     'order_id' => $order_id,
                     'user_id' => $drivers[$index],
@@ -285,7 +286,7 @@ class DeliveryController extends Controller
             $driver = User::find($request->id);
             $delivery = Delivery::create([
                 'delivery_location' => $request->address,
-                'current_location' => $this->getPlaceName($driver->current_placeid),
+                'current_location' => $this->getPlaceName($driver->lat, $driver->long),
                 'amount' => '100',
                 'order_id' => $request->order_id,
                 'user_id' => $request->id,
