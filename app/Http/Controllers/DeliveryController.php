@@ -353,7 +353,7 @@ class DeliveryController extends Controller
 
         Log::info($delivery->id);
 
-        event(new \App\Events\PickupEvent("Order Accepted.", $request->pickup_address, $delivery->id, $delivery->user_id));
+        event(new \App\Events\PickupEvent("Order Accepted.", $request->pickup_address, 1, 1));
 
         return $delivery->user;
     }
