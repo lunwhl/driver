@@ -64,6 +64,7 @@
                                 <ul class="dropdown-menu" role="menu">
                                     <li><a href="/home">Home</a></li>
                                     <li><a href="/profile">Profile</a></li>
+                                    <li><a href="/delivery/index">Delivery History</a></li>
                                     <li><a href="/availability">Availability</a></li>
                                     <li>
                                         <a href="{{ route('logout') }}"
@@ -114,14 +115,16 @@
       var pickupChannel = pusher.subscribe('channel-pickup-{{ auth()->id() }}');
 
       //Pickup Event
-      deliveryCancel.bind('App\\Events\\DeliveryCancel', pickUpMessage);
+      pickupChannel.bind('App\\Events\\DeliveryCancel', pickUpMessage);
 
       function pickUpMessage(data){
         swal(
             data.message,
             data.address,
             'success'
-          )
+          ).then(function ()){
+            window.location.href = "/delivery/index/" + data.delivery_id;
+        }
       }
 
       //Event for delivery cancel

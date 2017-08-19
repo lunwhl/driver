@@ -19,9 +19,11 @@ class DeliveryController extends Controller
         return view('index.delivery', ['deliveries' => $deliveries]);
     }
 
-    public function show($delivery_id, $user_id)
+    public function show($delivery_id)
     {
-        return view('show.delivery', ['delivery_id' => $delivery_id, 'user_id' => $user_id]);
+        $auth = auth()->id();
+
+        return view('show.delivery', ['delivery_id' => $delivery_id, 'user_id' => $auth]);
     }
 
     public function updateFinish(Request $request)
@@ -32,7 +34,7 @@ class DeliveryController extends Controller
             'status' => 'Finish'
             ]);
 
-        $driver = User::fina($request->user_id);
+        $driver = User::find($request->user_id);
 
         $driver->update([
             'delivery_status' => 'Finish'
@@ -236,7 +238,7 @@ class DeliveryController extends Controller
                 $driver = User::find($drivers[$index]);
                 $delivery = Delivery::create([
                     'delivery_location' => $address,
-                    'current_location' => $this->getPlaceName($driver->lat, $driver->long),
+                    'current_location' => $this->getPlaceName($driver->lat . "," . $driver->long),
                     'amount' => '100',
                     'order_id' => $order_id,
                     'user_id' => $drivers[$index],
@@ -348,7 +350,11 @@ class DeliveryController extends Controller
                 'longitude' => $request->longitude,
             ]);
 
-        event(new \App\Events\PickupEvent("Order Accepted.", $request->pickup_address));
+        $auth = auth()->id();
+
+        $delivery_id = Delivery::where('user_id', $auth)->last();
+
+        event(new \App\Events\PickupEvent("Order Accepted.", $request->pickup_address, $delivery_id));
 
         return $delivery->user;
     }

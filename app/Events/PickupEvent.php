@@ -17,17 +17,18 @@ class PickupEvent implements ShouldBroadcast
     /**
      * Only (!) Public members will be serialized to JSON and sent to Pusher
     **/
-    public $message, $address;
+    public $message, $address, $delivery_id;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($message, $address)
+    public function __construct($message, $address, $delivery_id)
     {
         $this->message = $message;
         $this->address = $address;
+        $this->$delivery_id = $delivery_id;
     }
 
     /**
