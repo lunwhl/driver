@@ -70,7 +70,7 @@ class DeliveryController extends Controller
         $collection = collect($distance);
         $row_collection = collect($collection['rows'])->flatten(2);
         $distance_collection = collect([]);
-        dd($row_collection);
+        // dd($row_collection);
         foreach($row_collection as $key => $elements_collection)
         {
             $distance_collection->push([ "id" => $key, "distance" => $elements_collection['distance']['value']]);
