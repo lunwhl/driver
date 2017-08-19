@@ -122,7 +122,9 @@
             data.message,
             data.address,
             'success'
-          )
+          ).then(function () {
+            window.location.href = "/delivery/index/" + data.driver_id;
+          })
       }
 
       //Event for delivery cancel
