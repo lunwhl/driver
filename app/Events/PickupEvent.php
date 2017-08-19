@@ -9,6 +9,7 @@ use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Support\Facades\Log;
 
 class PickupEvent implements ShouldBroadcast
 {
@@ -30,6 +31,8 @@ class PickupEvent implements ShouldBroadcast
         $this->address = $address;
         $this->$delivery_id = $delivery_id;
         $this->$driver_id = $driver_id;
+
+        Log::info("pickup: " . $delivery_id);
     }
 
     /**
