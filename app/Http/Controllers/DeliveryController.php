@@ -150,43 +150,43 @@ class DeliveryController extends Controller
         $user = new User;
         $users = $user->allOnline();
 
-        // $userLat = $request->latitude;
-        // $userLong = $request->longitude;
-        $userLat = 2.97759780000000000000;
-        $userLong = 101.60989599999999000000;
+        $userLat = $request->latitude;
+        $userLong = $request->longitude;
+        // $userLat = 2.97759780000000000000;
+        // $userLong = 101.60989599999999000000;
         $userCo = $userLat . ',' . $userLong;
-        $lng = 101.67525400000000000000;
-        // $address = $request->address;
-        // $order_id = $request->order_id;
-        $address = "hehe";
-        $order_id = 1;
+        // $lng = 101.67525400000000000000;
+        $address = $request->address;
+        $order_id = $request->order_id;
+        // $address = "hehe";
+        // $order_id = 1;
         // dd($users);
 
-        // $delivery_datetime = Carbon::parse($request->delivery_datetime);
+        $delivery_datetime = Carbon::parse($request->delivery_datetime);
 
-        // // get users that are available
-        // $availabilities = Availability::where('type',"Activate")
-        //                 ->where('status','Alive')
-        //                 ->where('date', $delivery_datetime->format('o-m-d'))
-        //                 ->orWhere('day', $delivery_datetime->format('l'))
-        //                 ->where('start_time', '<=' , $delivery_datetime->format('h:i:s'))
-        //                 ->where('end_time', '>=' , $delivery_datetime->format('h:i:s'))
-        //                 ->get();
+        // get users that are available
+        $availabilities = Availability::where('type',"Activate")
+                        ->where('status','Alive')
+                        ->where('date', $delivery_datetime->format('o-m-d'))
+                        ->orWhere('day', $delivery_datetime->format('l'))
+                        ->where('start_time', '<=' , $delivery_datetime->format('h:i:s'))
+                        ->where('end_time', '>=' , $delivery_datetime->format('h:i:s'))
+                        ->get();
 
         // // dd($availabilities);
 
         // // collect all id from available list
-        // $availabilities_id = $availabilities->pluck('driver_id');
-        // // dd($availabilities_id);
-        // // dd($availabilities_id->isEmpty());
-        // if($availabilities_id->isNotEmpty()){
-        //     // dd($availabilities_id);
-        //     $availabilities_users = User::whereIn('id', $availabilities_id)->where('delivery_status', 'Finish')->get();
-        //     // dd($availabilities_users);
-        //     foreach($availabilities_users as $availabilities_user){
-        //     $users->push($availabilities_user);
-        //     }
-        // }
+        $availabilities_id = $availabilities->pluck('driver_id');
+        // dd($availabilities_id);
+        // dd($availabilities_id->isEmpty());
+        if($availabilities_id->isNotEmpty()){
+            // dd($availabilities_id);
+            $availabilities_users = User::whereIn('id', $availabilities_id)->where('delivery_status', 'Finish')->get();
+            // dd($availabilities_users);
+            foreach($availabilities_users as $availabilities_user){
+            $users->push($availabilities_user);
+            }
+        }
         // dd($users);
         // dd($availabilities_id);
         $users = $users->unique("id");
@@ -322,7 +322,7 @@ class DeliveryController extends Controller
             // return redirect()->action('DeliveryController@show', ['id' => $delivery_id, 'user_id' => $driver->id]);
             // return redirect()->back();
             // echo $request->order_id;
-
+            return redirect()->back();
         }
     }
 
