@@ -81,7 +81,7 @@ class DeliveryController extends Controller
         $distance_collection->all();
         // dd($distance_collection);
         $filtered_collection = $distance_collection->filter(function ($item) {
-            return $item["distance"] >= 0;
+            return $item["distance"] < 1001;
         });
         // dd($filtered_collection);
         return $filtered_collection;
@@ -221,7 +221,7 @@ class DeliveryController extends Controller
 
         $this->sendPusher($collection->toArray(), 0, $address, $order_id, $userLat, $userLong);
 
-        return response("Fuck Haw", 202);
+        return response("Return message", 202);
     }
 
     // Listen for response, call the sender if no response or decline
