@@ -184,7 +184,7 @@ class DeliveryController extends Controller
             $user = new User;
             $users = $user->allOnline();
         }else{
-            $users = collection();
+            $users = collect();
         }
 
         $userLat = $request->latitude;
