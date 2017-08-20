@@ -178,12 +178,13 @@ class DeliveryController extends Controller
     {
         $now = Carbon::now();
         $delivery_datetime = Carbon::parse($request->delivery_datetime);
-        $users;
         
         if($now->gt($delivery_datetime))
         {
             $user = new User;
             $users = $user->allOnline();
+        }else{
+            $users = collection();
         }
 
         $userLat = $request->latitude;
@@ -221,7 +222,7 @@ class DeliveryController extends Controller
             $users->push($availabilities_user);
             }
         }
-        dd($users);
+        // dd($users);
         // dd($availabilities_id);
         $users = $users->unique("id");
 
