@@ -294,7 +294,7 @@ class DeliveryController extends Controller
                                                             'driver_id' => $driver->id,
                                                             'driver_image' => "testing image",
                                                             'status' => "found",
-                                                            'order_id' => $request->order_id
+                                                            'order_id' => $order_id
                                                             ]
                                                         ]);
             }
@@ -306,7 +306,7 @@ class DeliveryController extends Controller
             $client->request('POST', 'http://dabao.welory.com.my/api/driver/result', [
                                                     'form_params' => [
                                                         'status' => "not found",
-                                                        'order_id' => $request->order_id
+                                                        'order_id' => $order_id
                                                         ]
                                                     ]);
         }
