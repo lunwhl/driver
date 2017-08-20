@@ -221,7 +221,7 @@ class DeliveryController extends Controller
             $users->push($availabilities_user);
             }
         }
-        // dd($users);
+        dd($users);
         // dd($availabilities_id);
         $users = $users->unique("id");
 
