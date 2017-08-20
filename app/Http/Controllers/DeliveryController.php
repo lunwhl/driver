@@ -88,6 +88,32 @@ class DeliveryController extends Controller
 
     }
 
+    public function localDistance()
+    {
+        $response = \GoogleMaps::load('distancematrix')
+        ->setParam (['origins' => "3.028976,101.718337", 
+                'destinations' => "3.032132 101.717088"])
+        ->get();
+
+        $distance = json_decode($response, true);
+        $collection = collect($distance);
+        $row_collection = collect($collection['rows'])->flatten(2);
+        $distance_collection = collect([]);
+        // dd($row_collection);
+        foreach($row_collection as $key => $elements_collection)
+        {
+            $distance_collection->push([ "id" => $key, "distance" => $elements_collection['distance']['value']]);
+        }
+        $distance_collection->all();
+        dd($distance_collection);
+        $filtered_collection = $distance_collection->filter(function ($item) {
+            return $item["distance"] < 1001;
+        });
+        // dd($filtered_collection);
+        return $filtered_collection;
+
+    }
+
     public function storeCoordinate(Request $request)
     {
 
@@ -150,8 +176,15 @@ class DeliveryController extends Controller
 
     public function getPotentialDriver(Request $request)
     {
-        $user = new User;
-        $users = $user->allOnline();
+        $now = Carbon::now();
+        $delivery_datetime = Carbon::parse($request->delivery_datetime);
+        $users;
+        
+        if($now->format('o-m-d') == $delivery_datetime->format('o-m-d'))
+        {
+            $user = new User;
+            $users = $user->allOnline();
+        }
 
         $userLat = $request->latitude;
         $userLong = $request->longitude;
@@ -164,8 +197,6 @@ class DeliveryController extends Controller
         // $address = "hehe";
         // $order_id = 1;
         // dd($users);
-
-        $delivery_datetime = Carbon::parse($request->delivery_datetime);
 
         // get users that are available
         $availabilities = Availability::where('type',"Activate")

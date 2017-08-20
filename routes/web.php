@@ -61,6 +61,7 @@ Route::get('/updateAvailability', 'updateAvailability@showAvailability');
 Route::post('/updateAvailability/{id}', 'updateAvailability@updateAvailabilityIntoDB'); 
 
 Route::get('/test/deliverycancel', 'DeliveryController@getCancelResponse');
+Route::get('/test/distance', 'DeliveryController@localDistance');
 
 // Route::patch('/updateAvailability', 'updateAvailability@updateAvailabilityIntoDB'); 
 // Route::bind('/updateAvailability', function ($id) {
