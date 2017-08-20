@@ -180,7 +180,7 @@ class DeliveryController extends Controller
         $delivery_datetime = Carbon::parse($request->delivery_datetime);
         $users;
         
-        if($now->format('o-m-d') == $delivery_datetime->format('o-m-d'))
+        if($now->gt($delivery_datetime))
         {
             $user = new User;
             $users = $user->allOnline();
