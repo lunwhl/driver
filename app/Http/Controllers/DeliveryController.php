@@ -142,7 +142,7 @@ class DeliveryController extends Controller
         //Log::info("getPotentialDriver");
         $delivery_datetime = Carbon::parse($request->time);
         $users = collect();
-
+        // Force commit
         if(Carbon::now()->addHour()->addMinutes(30)->gt($delivery_datetime))
         {
             $user = new User;
