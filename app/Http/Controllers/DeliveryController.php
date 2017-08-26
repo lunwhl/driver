@@ -15,7 +15,7 @@ class DeliveryController extends Controller
 {
     public function index()
     {
-        Log::info("DeliveryController: index");
+        // Log::info("DeliveryController: index");
         $deliveries = Delivery::where('status', 'Finish')->where('user_id', auth()->user()->id)->get();
 
         return view('index.delivery', ['deliveries' => $deliveries]);
@@ -23,7 +23,7 @@ class DeliveryController extends Controller
 
     public function show($delivery_id)
     {
-        Log::info("DeliveryController: show");
+        // Log::info("DeliveryController: show");
         $auth = auth()->id();
 
         return view('show.delivery', ['delivery_id' => $delivery_id, 'user_id' => $auth]);
@@ -31,7 +31,7 @@ class DeliveryController extends Controller
 
     public function updateFinish(Request $request)
     {
-        Log::info("DeliveryController: updateFinish");
+        // Log::info("DeliveryController: updateFinish");
         $delivery = Delivery::find($request->id);
 
         $delivery->update([
@@ -48,26 +48,9 @@ class DeliveryController extends Controller
 
     }
 
-    public function getGeoByCoordinate()
-    {
-        $response = \GoogleMaps::load('geocoding')
-                    ->setParamByKey('latlng', '2.982703, 101.601289') 
-                    ->get();
-
-                 $area = json_decode($response, true);
-                 dd(json_decode($response)->results);
-        foreach(json_decode($response)->results as $area)
-        {
-          $lat = $area->geometry->location->lat;
-          $lng = $area->geometry->location->lng;
-        }
-
-        echo 'lat: ' . $lat . ' ' . 'lng: ' . $lng;
-    }
-
     public function getDistance($userCo, $driverCo)
     {
-        Log::info("getDistance");
+        //Log::info("getDistance");
         $response = \GoogleMaps::load('distancematrix')
         ->setParam (['origins' => $driverCo, 
                 'destinations' => $userCo])
@@ -77,19 +60,16 @@ class DeliveryController extends Controller
         $collection = collect($distance);
         $row_collection = collect($collection['rows'])->flatten(2);
         $distance_collection = collect([]);
-        // dd($row_collection);
         foreach($row_collection as $key => $elements_collection)
         {
             $distance_collection->push([ "id" => $key, "distance" => $elements_collection['distance']['value']]);
         }
         $distance_collection->all();
-        // dd($distance_collection);
         $filtered_collection = $distance_collection->filter(function ($item) {
             return $item["distance"] < 1001;
         });
-        // dd($filtered_collection);
-        return $filtered_collection;
 
+        return $filtered_collection;
     }
 
     public function localDistance()
@@ -103,17 +83,14 @@ class DeliveryController extends Controller
         $collection = collect($distance);
         $row_collection = collect($collection['rows'])->flatten(2);
         $distance_collection = collect([]);
-        // dd($row_collection);
         foreach($row_collection as $key => $elements_collection)
         {
             $distance_collection->push([ "id" => $key, "distance" => $elements_collection['distance']['value']]);
         }
         $distance_collection->all();
-        dd($distance_collection);
         $filtered_collection = $distance_collection->filter(function ($item) {
             return $item["distance"] < 1001;
         });
-        // dd($filtered_collection);
         return $filtered_collection;
 
     }
@@ -122,7 +99,6 @@ class DeliveryController extends Controller
     {
 
         $postal_code = $this->getPostalCode($request->lat, $request->long);
-        $place_id = $this->getPlaceId($request->lat, $request->long);
 
         $auth = auth()->user();
 
@@ -130,7 +106,6 @@ class DeliveryController extends Controller
             'long' => $request->long,
             'lat' => $request->lat,
             'current_postcode' => $postal_code,
-            'current_placeid' => $place_id
             ]);
 
         return response([], 200);
@@ -150,54 +125,39 @@ class DeliveryController extends Controller
         return $postal_code;
     }
 
-    public function getPlaceId($lat, $long)
-    {
-        $response = \GoogleMaps::load('geocoding')
-                    ->setParamByKey('latlng', $lat.','.$long) 
-                    ->get();
-
-        $area = json_decode($response, true);
-        $collection = collect(json_decode($response)->results);
-        $place_id = $collection->first()->place_id;
-
-        return $place_id;
-    }
-
     public function getPlaceName($driverCo)
     {        $response = \GoogleMaps::load('geocoding')
                     ->setParamByKey('latlng', $driverCo)
                     ->get();
 
         $area = json_decode($response, true);
-        // dd($area);
         $collection = collect(json_decode($response)->results);
-        // dd($collection);
         $address_components = collect($collection->first()->address_components);
         $place_name = $address_components->where('types', ['locality', 'political'])->first()->long_name;
-        // dd($place_name);
         return $place_name;
     }
 
     public function getPotentialDriver(Request $request)
     {
-        Log::info("getPotentialDriver");
-        $now = Carbon::now();
+        //Log::info("getPotentialDriver");
         $delivery_datetime = Carbon::parse($request->time);
-        if($now->gt($delivery_datetime))
+        $users = collect();
+
+        if(Carbon::now()->gt($delivery_datetime))
         {
             $user = new User;
             $users = $user->allOnline();
-        }else{
-            $users = collect();
         }
 
         $userLat = $request->latitude;
         $userLong = $request->longitude;
+
         $userCo = $userLat . ',' . $userLong;
         $address = $request->address;
+
         $order_id = $request->order_id;
 
-        Log::info("getPotentialDriver: Availabilities");
+        //Log::info("getPotentialDriver: Availabilities");
         // get users that are available
         $availabilities = Availability::where('type',"Activate")
                         ->where('status','Alive')
@@ -209,20 +169,26 @@ class DeliveryController extends Controller
 
         // collect all id from available list
         $availabilities_id = $availabilities->pluck('driver_id');
-        if($availabilities_id->isNotEmpty()){
-            $availabilities_users = User::whereIn('id', $availabilities_id)->where('delivery_status', 'Finish')->get();
-            foreach($availabilities_users as $availabilities_user){
-            $users->push($availabilities_user);
-            }
-        }
 
+        if($availabilities_id->isNotEmpty()){
+
+            $availabilities_users = User::whereIn('id', $availabilities_id)
+                                        ->whereNotIn('id', $users->pluck('id') )
+                                        ->where('delivery_status', 'Finish')
+                                        ->get();
+
+            $users->merge($availabilities_users);
+
+        }
         // pluck latt, long 
         $coordinates = $users->pluck('latLng')->implode('|');
 
-        Log::info("getPotentialDriver: driversWithinDistance");
+        //Log::info("getPotentialDriver: driversWithinDistance");
         $driversWithinDistance = $this->getDistance($userCo, $coordinates);
+
         if($driversWithinDistance->isEmpty()){
             $this->sendPusher(array(), 0, $address, $order_id, $userLat, $userLong);
+            return response("Return message", 202);
         }  
         
         $potentialDrivers = collect();
@@ -245,109 +211,91 @@ class DeliveryController extends Controller
     // Send the message to the driver
     public function sendPusher($drivers, $index, $address, $order_id, $userLat, $userLong)
     {
-        Log::info("sendPusher");
+        //Log::info("sendPusher");
         if( $index != sizeOf($drivers) )
         {
             // Still have drivers to send
             // Get the next driver
-            $is_online_user = User::find($drivers[$index]);
-            if($is_online_user->isOnline()){
+            $user = User::find($drivers[$index]);
+            if($user->isOnline()){
                 event(new \App\Events\DriverPusherEvent($address, $drivers[$index], $index, $drivers, $order_id, $userLat, $userLong));
             }else{
                 // when there is no online user and only user that found from availability
-                $driver = User::find($drivers[$index]);
-                $delivery = Delivery::create([
-                    'delivery_location' => $address,
-                    'current_location' => $this->getPlaceName($driver->lat . "," . $driver->long),
-                    'amount' => '100',
-                    'order_id' => $order_id,
-                    'user_id' => $drivers[$index],
-                    'status' => 'Awaiting'
-                    ]);
-
-                $delivery->addresses()->create([
-                    'type' => 'delivery',
-                    'address_line' => $address,
-                    'latitude' => $userLat,
-                    'longitude' => $userLong
-                    ]);
-                $delivery_id = Delivery::all()->last()->id;
-
-                //  maybe create a event to tell user we found a driver
-                $client = new Client();
-                $client->request('POST', 'http://dabao.welory.com.my/api/driver/result', [
-                                                        'form_params' => [
-                                                            'driver_name' => $driver->fname." ".$driver->lname,
-                                                            'driver_id' => $driver->id,
-                                                            'driver_image' => "testing image",
-                                                            'status' => "found",
-                                                            'order_id' => $order_id
-                                                            ]
-                                                        ]);
+                $this->confirmDelivery($user, $address, $order_id, $userLat, $userLong);
             }
         }
         else
         {
-            Log::info("sendPusher: no driver");
+            //Log::info("sendPusher: no driver");
             // when there is no drivers found
-            $client = new Client();
-            $client->request('POST', 'http://dabao.welory.com.my/api/driver/result', [
-                                                    'form_params' => [
-                                                        'status' => "not found",
-                                                        'order_id' => $order_id
-                                                        ]
-                                                    ]);
+            $this->failDelivery($order_id);
         }
+    }
+
+    public function confirmDelivery($driver, $address, $order_id, $userLat, $userLong)
+    {
+        $delivery = Delivery::create([
+                    'delivery_location' => $address,
+                    'current_location' => $this->getPlaceName($driver->lat . "," . $driver->long),
+                    'amount' => '100',
+                    'order_id' => $order_id,
+                    'user_id' => $driver->id,
+                    'status' => 'Awaiting'
+                    ]);
+
+        $delivery->addresses()->create([
+            'type' => 'delivery',
+            'address_line' => $address,
+            'latitude' => $userLat,
+            'longitude' => $userLong
+            ]);
+
+        //  maybe create a event to tell user we found a driver
+        $client = new Client();
+        $client->request('POST', 'http://dabao.welory.com.my/api/driver/result', [
+                            'form_params' => [
+                                'driver_name' => $driver->fname." ".$driver->lname,
+                                'driver_id' => $driver->id,
+                                'driver_image' => "testing image",
+                                'status' => "found",
+                                'order_id' => $order_id
+                                ]
+                            ]);
+    }
+
+    public function failDelivery($order_id) {
+        $client = new Client();
+            $client->request('POST', 'http://dabao.welory.com.my/api/driver/result', [
+                                'form_params' => [
+                                    'status' => "not found",
+                                    'order_id' => $order_id
+                                    ]
+                                ]);
     }
 
     public function getDriverResponse(Request $request)
     {
-        Log::info("getDriverResponse");
+        //Log::info("getDriverResponse");
         if( strcasecmp($request->acceptance, 'decline') == 0 )
         {
-            Log::info("getDriverResponse: decline");
+            //Log::info("getDriverResponse: decline");
             $this->sendPusher($request->drivers, $request->index + 1, $request->address, $request->order_id,$request->userLat, $request->userLong);
         }
         else
         {
-            Log::info("getDriverResponse: accepted");
+            //Log::info("getDriverResponse: accepted");
             // Store delivery record
             $driver = User::find($request->id);
-            $delivery = Delivery::create([
-                'delivery_location' => $request->address,
-                'current_location' => $this->getPlaceName($driver->lat . "," . $driver->long),
-                'amount' => '100',
-                'order_id' => $request->order_id,
-                'user_id' => $request->id,
-                'status' => 'Awaiting'
-                ]);
-
-            $delivery->addresses()->create([
-                    'type' => 'delivery',
-                    'address_line' => $request->address,
-                    'latitude' => $request->latitude,
-                    'longitude' => $request->longitude
-                    ]);
-            $delivery_id = Delivery::all()->last()->id;
-
-            //  maybe create a event to tell user we found a driver
-            $client = new Client();
-            $client->request('POST', 'http://dabao.welory.com.my/api/driver/result', [
-                                                    'form_params' => [
-                                                        'driver_name' => $driver->fname." ".$driver->lname,
-                                                        'driver_id' => $driver->id,
-                                                        'driver_image' => "testing image",
-                                                        'status' => "found",
-                                                        'order_id' => $request->order_id
-                                                        ]
-                                                    ]);
-            return redirect()->back();
+            
+            $this->confirmDelivery($driver, $request->address, $request->order_id, $request->userLat, $request->userLong);
         }
+
+        //return response(200);
     }
 
     public function getCancelResponse(Request $request)
     {
-        Log::info("getCancelResponse");
+        //Log::info("getCancelResponse");
         $delivery = Delivery::find($request->delivery_id);
 
         $delivery::update([
@@ -359,7 +307,7 @@ class DeliveryController extends Controller
     }
 
     public function getPickupDetails(Request $request){
-        Log::info("getPickupDetails");
+        //Log::info("getPickupDetails");
         $delivery = Delivery::where('order_id', $request->order_id)->first();
 
         $delivery->addresses()->create([
