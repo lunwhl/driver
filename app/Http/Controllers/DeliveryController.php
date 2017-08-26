@@ -64,12 +64,8 @@ class DeliveryController extends Controller
         {
             $distance_collection->push([ "id" => $key, "distance" => $elements_collection['distance']['value']]);
         }
-        $distance_collection->all();
-        $filtered_collection = $distance_collection->filter(function ($item) {
-            return $item["distance"] < 1001;
-        });
 
-        return $filtered_collection;
+        return $distance_collection;
     }
 
     public function localDistance()
@@ -87,11 +83,8 @@ class DeliveryController extends Controller
         {
             $distance_collection->push([ "id" => $key, "distance" => $elements_collection['distance']['value']]);
         }
-        $distance_collection->all();
-        $filtered_collection = $distance_collection->filter(function ($item) {
-            return $item["distance"] < 1001;
-        });
-        return $filtered_collection;
+        
+        return $distance_collection;
 
     }
 
@@ -145,7 +138,7 @@ class DeliveryController extends Controller
         if(Carbon::now()->addHour()->addMinutes(30)->gt($delivery_datetime))
         {
             $user = new User;
-            $users = $user->allOnline();
+            $users = $user->allOnline()->where('delivery_status', 'Finish')->take(10);
         }
 
         $userLat = $request->latitude;
@@ -191,17 +184,17 @@ class DeliveryController extends Controller
             return response("Return message", 202);
         }  
         
-        $potentialDrivers = collect();
-        foreach($driversWithinDistance->take(10) as $driverWithinDistance){
-            $user = $users->where('id', $driverWithinDistance->id)->first();
-            $user->distance = $driverWithinDistance["distance"];
-            $potentialDrivers->push($user);
+        foreach($driversWithinDistance as $key => $driverWithinDistance){
+            $users[$key]->distance = $driverWithinDistance["distance"];
         }
 
-        // the potential drivers are here and sort by distance from shortest to furthest
-        $potentialDrivers = $potentialDrivers->sortBy('distance');
+        $collection = $users->filter(function ($item) {
+                                return $item["distance"] < 1001;
+                            })
+                            ->sortBy('distance')
+                            ->pluck('id');
 
-        $collection = collect($potentialDrivers)->pluck('id');
+        // the potential drivers are here and sort by distance from shortest to furthest
 
         $this->sendPusher($collection->toArray(), 0, $address, $order_id, $userLat, $userLong);
 
