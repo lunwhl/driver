@@ -106,7 +106,7 @@ class RegisterController extends Controller
             'role' => '0',
             'online_status' => 'offline',
             'status' => '0',
-            'delivery_status' => 'finish',
+            'delivery_status' => 'Finish',
             'number_plate' => $request->number_plate,
             'password' => bcrypt($request->password),
         ]);
