@@ -119,7 +119,8 @@ class DeliveryController extends Controller
     }
 
     public function getPlaceName($driverCo)
-    {        $response = \GoogleMaps::load('geocoding')
+    {        
+        $response = \GoogleMaps::load('geocoding')
                     ->setParamByKey('latlng', $driverCo)
                     ->get();
 
@@ -138,7 +139,7 @@ class DeliveryController extends Controller
         if(Carbon::now()->addHour()->addMinutes(30)->gt($delivery_datetime))
         {
             $user = new User;
-            $users = $user->allOnline()->where('delivery_status', 'Finish')->take(10);
+            $users = $user->allOnline()->where('delivery_status', 'Finish')->take(10)->values();
         }
 
         $userLat = $request->latitude;
@@ -281,7 +282,9 @@ class DeliveryController extends Controller
             // Store delivery record
             $driver = User::find($request->id);
             
-            $this->confirmDelivery($driver, $request->address, $request->order_id, $request->userLat, $request->userLong);
+            $this->confirmDelivery($driver, $request->address, $request->order_id, $request->latitude, $request->longitude);
+
+            return back();
         }
 
         //return response(200);
