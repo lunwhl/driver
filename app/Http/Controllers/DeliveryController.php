@@ -142,7 +142,6 @@ class DeliveryController extends Controller
         //Log::info("getPotentialDriver");
         $delivery_datetime = Carbon::parse($request->time);
         $users = collect();
-        // Force commit
         if(Carbon::now()->addHour()->addMinutes(30)->gt($delivery_datetime))
         {
             $user = new User;
@@ -180,6 +179,7 @@ class DeliveryController extends Controller
             $users->merge($availabilities_users);
 
         }
+
         // pluck latt, long 
         $coordinates = $users->pluck('latLng')->implode('|');
 
@@ -192,9 +192,10 @@ class DeliveryController extends Controller
         }  
         
         $potentialDrivers = collect();
-        foreach($driversWithinDistance as $key => $driverWithinDistance){
-            $users[$key]->distance = $driverWithinDistance["distance"];
-            $potentialDrivers->push($users[$key]);
+        foreach($driversWithinDistance->take(10) as $driverWithinDistance){
+            $user = $users->where('id', $driverWithinDistance->id)->first();
+            $user->distance = $driverWithinDistance["distance"];
+            $potentialDrivers->push($user);
         }
 
         // the potential drivers are here and sort by distance from shortest to furthest
