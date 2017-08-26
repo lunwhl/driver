@@ -143,7 +143,7 @@ class DeliveryController extends Controller
         $delivery_datetime = Carbon::parse($request->time);
         $users = collect();
 
-        if(Carbon::now()->gt($delivery_datetime))
+        if(Carbon::now()->addHour()->addMinutes(30)->gt($delivery_datetime))
         {
             $user = new User;
             $users = $user->allOnline();
