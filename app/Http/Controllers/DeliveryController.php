@@ -25,8 +25,11 @@ class DeliveryController extends Controller
     {
         // Log::info("DeliveryController: show");
         $auth = auth()->id();
+        $delivery = Delivery::where('id', $delivery_id)->first();
 
-        return view('show.delivery', ['delivery_id' => $delivery_id, 'user_id' => $auth]);
+        // dd($delivery);
+
+        return view('show.delivery', ['delivery' => $delivery, 'user_id' => $auth]);
     }
 
     public function updateFinish(Request $request)
@@ -197,14 +200,14 @@ class DeliveryController extends Controller
 
         // the potential drivers are here and sort by distance from shortest to furthest
 
-        $this->sendPusher($collection->toArray(), 0, $address, $order_id, $userLat, $userLong);
+        $this->sendPusher($collection->toArray(), 0, $address, $order_id, $userLat, $userLong, $delivery_datetime);
 
         return response("Return message", 202);
     }
 
     // Listen for response, call the sender if no response or decline
     // Send the message to the driver
-    public function sendPusher($drivers, $index, $address, $order_id, $userLat, $userLong)
+    public function sendPusher($drivers, $index, $address, $order_id, $userLat, $userLong, $pickup_time)
     {
         //Log::info("sendPusher");
         if( $index != sizeOf($drivers) )
@@ -213,10 +216,10 @@ class DeliveryController extends Controller
             // Get the next driver
             $user = User::find($drivers[$index]);
             if($user->isOnline()){
-                event(new \App\Events\DriverPusherEvent($address, $drivers[$index], $index, $drivers, $order_id, $userLat, $userLong));
+                event(new \App\Events\DriverPusherEvent($address, $drivers[$index], $index, $drivers, $order_id, $userLat, $userLong, $pickup_time));
             }else{
                 // when there is no online user and only user that found from availability
-                $this->confirmDelivery($user, $address, $order_id, $userLat, $userLong);
+                $this->confirmDelivery($user, $address, $order_id, $userLat, $userLong, $pickup_time);
             }
         }
         else
@@ -227,7 +230,7 @@ class DeliveryController extends Controller
         }
     }
 
-    public function confirmDelivery($driver, $address, $order_id, $userLat, $userLong)
+    public function confirmDelivery($driver, $address, $order_id, $userLat, $userLong, $pickup_time)
     {
         $delivery = Delivery::create([
                     'delivery_location' => $address,
@@ -235,7 +238,8 @@ class DeliveryController extends Controller
                     'amount' => '100',
                     'order_id' => $order_id,
                     'user_id' => $driver->id,
-                    'status' => 'Awaiting'
+                    'status' => 'Awaiting',
+                    'pickup_time' => $pickup_time
                     ]);
 
         $delivery->addresses()->create([
@@ -274,7 +278,7 @@ class DeliveryController extends Controller
         if( strcasecmp($request->acceptance, 'decline') == 0 )
         {
             //Log::info("getDriverResponse: decline");
-            $this->sendPusher($request->drivers, $request->index + 1, $request->address, $request->order_id,$request->userLat, $request->userLong);
+            $this->sendPusher($request->drivers, $request->index + 1, $request->address, $request->order_id,$request->userLat, $request->userLong, $request->pickup_time);
         }
         else
         {
@@ -282,7 +286,7 @@ class DeliveryController extends Controller
             // Store delivery record
             $driver = User::find($request->id);
             
-            $this->confirmDelivery($driver, $request->address, $request->order_id, $request->latitude, $request->longitude);
+            $this->confirmDelivery($driver, $request->address, $request->order_id, $request->latitude, $request->longitude, $request->pickup_time);
 
             return back();
         }
