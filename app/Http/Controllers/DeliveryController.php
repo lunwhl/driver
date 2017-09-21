@@ -171,12 +171,12 @@ class DeliveryController extends Controller
                                         ->where('delivery_status', 'Finish')
                                         ->get();
 
-            $potential_driver = $users->merge($availabilities_users);
+            $users->merge($availabilities_users);
 
         }
 
         // pluck latt, long 
-        $coordinates = $potential_driver->pluck('latLng')->implode('|');
+        $coordinates = $users->pluck('latLng')->implode('|');
 
         //Log::info("getPotentialDriver: driversWithinDistance");
         $driversWithinDistance = $this->getDistance($userCo, $coordinates);
@@ -187,10 +187,10 @@ class DeliveryController extends Controller
         }  
         
         foreach($driversWithinDistance as $key => $driverWithinDistance){
-            $potential_driver[$key]->distance = $driverWithinDistance["distance"];
+            $users[$key]->distance = $driverWithinDistance["distance"];
         }
 
-        $collection = $potential_driver->filter(function ($item) {
+        $collection = $users->filter(function ($item) {
                                 return $item["distance"] < 1001;
                             })
                             ->sortBy('distance')
