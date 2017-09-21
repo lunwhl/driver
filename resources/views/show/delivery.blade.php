@@ -12,23 +12,16 @@
 	<div class="col-md-12">
 	  <div class="col-md-6">
 	  	<p>Pickup Time:<span>{{$delivery->pickup_time}}</span></p>
-	  </div>
-	  <div class="col-md-6">
 	  	<p><span>Delivery Location:</span> <span>{{$delivery->delivery_location}}</span></p>
 	  	<p><a class="btn btn-primary" href="#">Help</a></p>
 	  </div>
-	  @forelse($pickup_addresses as $key => $pickup_address)
-		  <div class="col-md-6">
-		  	<p><span>Pickup Location {{$key + 1}}:</span> <span>{{$pickup_address->address_line}}</span></p>
-		  </div>
-	  @empty
-		  <div class="col-md-6">
-		  	<p>No result</p>
-		  </div>
-	  @endforelse
-	  @if(count($pickup_address) > 0)
-	  <p><a class="btn btn-primary" href="#">Help</a></p>
-	  @endif
+	  <div class="col-md-6">
+		@forelse($pickup_addresses as $key => $pickup_address)
+			  <p><span>Pickup Location {{$key + 1}}:</span> <span>{{$pickup_address->address_line}}</span></p>
+		@empty
+			  <p>No result</p>
+		@endforelse
+	  </div>
 	</div>
 </div>
 <div class="row">
