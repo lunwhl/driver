@@ -25,7 +25,7 @@ class DeliveryController extends Controller
     {
         // Log::info("DeliveryController: show");
         $auth = auth()->id();
-        $delivery = Delivery::where('id', $delivery_id);
+        $delivery = Delivery::where('id', $delivery_id)->first();
 
         return view('show.delivery', ['delivery' => $delivery, 'user_id' => $auth]);
     }
