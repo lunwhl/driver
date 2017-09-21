@@ -25,9 +25,7 @@ class DeliveryController extends Controller
     {
         // Log::info("DeliveryController: show");
         $auth = auth()->id();
-        $delivery = Delivery::where('id', $delivery_id)->first();
-
-        // dd($delivery);
+        $delivery = Delivery::where('id', $delivery_id);
 
         return view('show.delivery', ['delivery' => $delivery, 'user_id' => $auth]);
     }
@@ -200,14 +198,14 @@ class DeliveryController extends Controller
 
         // the potential drivers are here and sort by distance from shortest to furthest
 
-        $this->sendPusher($collection->toArray(), 0, $address, $order_id, $userLat, $userLong, $delivery_datetime);
+        $this->sendPusher($collection->toArray(), 0, $address, $order_id, $userLat, $userLong);
 
         return response("Return message", 202);
     }
 
     // Listen for response, call the sender if no response or decline
     // Send the message to the driver
-    public function sendPusher($drivers, $index, $address, $order_id, $userLat, $userLong, $pickup_time)
+    public function sendPusher($drivers, $index, $address, $order_id, $userLat, $userLong)
     {
         //Log::info("sendPusher");
         if( $index != sizeOf($drivers) )
@@ -216,10 +214,10 @@ class DeliveryController extends Controller
             // Get the next driver
             $user = User::find($drivers[$index]);
             if($user->isOnline()){
-                event(new \App\Events\DriverPusherEvent($address, $drivers[$index], $index, $drivers, $order_id, $userLat, $userLong, $pickup_time));
+                event(new \App\Events\DriverPusherEvent($address, $drivers[$index], $index, $drivers, $order_id, $userLat, $userLong));
             }else{
                 // when there is no online user and only user that found from availability
-                $this->confirmDelivery($user, $address, $order_id, $userLat, $userLong, $pickup_time);
+                $this->confirmDelivery($user, $address, $order_id, $userLat, $userLong);
             }
         }
         else
@@ -230,7 +228,7 @@ class DeliveryController extends Controller
         }
     }
 
-    public function confirmDelivery($driver, $address, $order_id, $userLat, $userLong, $pickup_time)
+    public function confirmDelivery($driver, $address, $order_id, $userLat, $userLong)
     {
         $delivery = Delivery::create([
                     'delivery_location' => $address,
@@ -238,8 +236,7 @@ class DeliveryController extends Controller
                     'amount' => '100',
                     'order_id' => $order_id,
                     'user_id' => $driver->id,
-                    'status' => 'Awaiting',
-                    'pickup_time' => $pickup_time
+                    'status' => 'Awaiting'
                     ]);
 
         $delivery->addresses()->create([
@@ -278,7 +275,7 @@ class DeliveryController extends Controller
         if( strcasecmp($request->acceptance, 'decline') == 0 )
         {
             //Log::info("getDriverResponse: decline");
-            $this->sendPusher($request->drivers, $request->index + 1, $request->address, $request->order_id,$request->userLat, $request->userLong, $request->pickup_time);
+            $this->sendPusher($request->drivers, $request->index + 1, $request->address, $request->order_id,$request->userLat, $request->userLong);
         }
         else
         {
@@ -286,7 +283,7 @@ class DeliveryController extends Controller
             // Store delivery record
             $driver = User::find($request->id);
             
-            $this->confirmDelivery($driver, $request->address, $request->order_id, $request->latitude, $request->longitude, $request->pickup_time);
+            $this->confirmDelivery($driver, $request->address, $request->order_id, $request->latitude, $request->longitude);
 
             return back();
         }
@@ -310,6 +307,10 @@ class DeliveryController extends Controller
     public function getPickupDetails(Request $request){
         //Log::info("getPickupDetails");
         $delivery = Delivery::where('order_id', $request->order_id)->first();
+
+        $delivery::update([
+            'pickup_time' => $request->pickup_time
+            ]);
 
         $delivery->addresses()->create([
                 'type' => 'pickup',

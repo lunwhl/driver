@@ -91,7 +91,6 @@
                   <input style="display:none;" id="order_id" type="text" name="order_id">
                   <input style="display:none;" id="longitude" type="text" name="longitude">
                   <input style="display:none;" id="latitude" type="text" name="latitude">
-                  <input style="display:none;" id="pickup_time" type="text" name="pickup_time">
                 </form>
             </div>
         </nav>
@@ -176,14 +175,13 @@
           $('#order_id').val(data.order_id);
           $('#latitude').val(data.userLat);
           $('#longitude').val(data.userLong);
-          $('#pickup_time').val(data.pickup_time);
           $('#acceptance').submit();
         }, function (dismiss) {
           // dismiss can be 'cancel', 'overlay',
           // 'close', and 'timer'
           clearInterval(timer);
           if (dismiss === 'cancel' || dismiss === 'timer') {
-            axios.post('/map/acceptance', {acceptance: "decline", index: data.index, id: data.id, drivers: data.drivers, order_id: data.order_id, address: data.message, userLat: data.userLat, userLong: data.userLong, pickup_time: data.pickup_time});
+            axios.post('/map/acceptance', {acceptance: "decline", index: data.index, id: data.id, drivers: data.drivers, order_id: data.order_id, address: data.message, userLat: data.userLat, userLong: data.userLong});
           }
         })
         timer = setInterval(function() {
