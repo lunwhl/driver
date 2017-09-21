@@ -19,7 +19,7 @@
 	  </div>
 	  @forelse($pickup_addresses as $key => $pickup_address)
 		  <div class="col-md-6">
-		  	<p><span>Pickup Location {{$key}}:</span> <span>{{$pickup_address->address_line}}</span></p>
+		  	<p><span>Pickup Location {{$key + 1}}:</span> <span>{{$pickup_address->address_line}}</span></p>
 		  </div>
 	  @empty
 		  <div class="col-md-6">
