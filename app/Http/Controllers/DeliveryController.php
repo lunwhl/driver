@@ -308,9 +308,8 @@ class DeliveryController extends Controller
         //Log::info("getPickupDetails");
         $delivery = Delivery::where('order_id', $request->order_id)->first();
 
-        $delivery::update([
-            'pickup_time' => $request->pickup_time
-            ]);
+        $delivery->pickup_time = $request->pickup_time;
+        $delivery->save();
 
         $delivery->addresses()->create([
                 'type' => 'pickup',
