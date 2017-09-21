@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use App\Delivery;
+use App\Address;
 use App\User;
 use Carbon\Carbon;
 use App\Availability;
@@ -26,8 +27,9 @@ class DeliveryController extends Controller
         // Log::info("DeliveryController: show");
         $auth = auth()->id();
         $delivery = Delivery::where('id', $delivery_id)->first();
+        $pickup_addresses = Address::where('delivery_id', $delivery_id)->get();
 
-        return view('show.delivery', ['delivery' => $delivery, 'user_id' => $auth]);
+        return view('show.delivery', ['delivery' => $delivery, 'user_id' => $auth, 'pickup_addresses' => $pickup_addresses]);
     }
 
     public function updateFinish(Request $request)

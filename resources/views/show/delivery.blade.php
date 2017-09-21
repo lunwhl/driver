@@ -17,6 +17,16 @@
 	  	<p><span>Delivery Location:</span> <span>{{$delivery->delivery_location}}</span></p>
 	  	<p><a class="btn btn-primary" href="#">Help</a></p>
 	  </div>
+	  @forelse($pickup_addresses as $key => $pickup_address)
+		  <div class="col-md-6">
+		  	<p><span>Pickup Location {{$key}}:</span> <span>{{$pickup_address->address_line}}</span></p>
+		  	<p><a class="btn btn-primary" href="#">Help</a></p>
+		  </div>
+	  @empty
+		  <div class="col-md-6">
+		  	<p>No result</p>
+		  </div>
+	  @endforelse
 	</div>
 </div>
 <div class="row">
