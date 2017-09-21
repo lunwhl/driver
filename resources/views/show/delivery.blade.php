@@ -11,11 +11,10 @@
 <div class="row">
 	<div class="col-md-12">
 	  <div class="col-md-6">
-	  	<p>Pickup Time:<span>13:00</span></p> 
-	  	<p>Number of food:<span>3</span></p>
+	  	<p>Pickup Time:<span>{{$delivery->pickup_time}}</span></p>
 	  </div>
 	  <div class="col-md-6">
-	  	<p><span>Delivery Location:</span> <span>User pass de address</span></p>
+	  	<p><span>Delivery Location:</span> <span>{{$delivery->delivery_location}}</span></p>
 	  	<p><a class="btn btn-primary" href="#">Help</a></p>
 	  </div>
 	</div>
@@ -63,11 +62,13 @@
 <form id="post_id" method="post" action="/delivery/complete">
   {!! csrf_field() !!}
   <input style="display:none;" id="p_id" type="text" name="id">
+  <input style="display:none;" id="u_id" type="text" name="user_id">
 </form>
 @endsection
 @section('js')
 	<script>
-	$('#p_id').val("{{$delivery_id}}");
+	$('#p_id').val("{{$delivery->id}}");
+	$('#u_id').val("{{$user_id}}");
 		function finish(){
 			swal(
 			  'Good job!',

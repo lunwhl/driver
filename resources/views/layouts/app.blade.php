@@ -14,8 +14,6 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.6.4/sweetalert2.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.6.4/sweetalert2.css">
@@ -66,7 +64,8 @@
                                 <ul class="dropdown-menu" role="menu">
                                     <li><a href="/home">Home</a></li>
                                     <li><a href="/profile">Profile</a></li>
-                                    <li><a href="/map/driver">Sender Test</a></li>
+                                    <li><a href="/delivery/index">Delivery History</a></li>
+                                    <li><a href="/availability">Availability</a></li>
                                     <li>
                                         <a href="{{ route('logout') }}"
                                             onclick="event.preventDefault();
@@ -90,6 +89,8 @@
                   <input style="display:none;" id="id" type="text" name="id">
                   <input style="display:none;" id="address" type="text" name="address">
                   <input style="display:none;" id="order_id" type="text" name="order_id">
+                  <input style="display:none;" id="longitude" type="text" name="longitude">
+                  <input style="display:none;" id="latitude" type="text" name="latitude">
                 </form>
             </div>
         </nav>
@@ -98,8 +99,6 @@
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
-
-    @yield('js')
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://js.pusher.com/3.1/pusher.min.js"></script>
@@ -113,6 +112,23 @@
       //Subscribe to the channel we specified in our Laravel Event
       var channel = pusher.subscribe('channel-name-{{ auth()->id() }}');
       var deliveryCancel = pusher.subscribe('delivery-cancel-{{ auth()->id() }}');
+      var pickupChannel = pusher.subscribe('channel-pickup-{{ auth()->id() }}');
+
+      //Pickup Event
+      pickupChannel.bind('App\\Events\\PickupEvent', pickUpMessage);
+
+      function pickUpMessage(data){
+        swal({
+          title: data.message,
+          text: data.address,
+          type: 'success',
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'OK'
+        }).then(function () {
+            window.location.href = "/delivery/index/" + data.delivery_id;
+        })
+      }
 
       //Event for delivery cancel
       deliveryCancel.bind('App\\Events\\DeliveryCancel', deliveryCancelMessage);
@@ -130,7 +146,7 @@
 
       function addMessage(data) {
         var
-          closeInSeconds = 3,
+          closeInSeconds = 10,
           displayText = data.message + "\n" + "Please response in #1 seconds.",
           timer;
         swal({
@@ -157,13 +173,15 @@
           $('#id').val(data.id);
           $('#address').val(data.message);
           $('#order_id').val(data.order_id);
+          $('#latitude').val(data.userLat);
+          $('#longitude').val(data.userLong);
           $('#acceptance').submit();
         }, function (dismiss) {
           // dismiss can be 'cancel', 'overlay',
           // 'close', and 'timer'
           clearInterval(timer);
           if (dismiss === 'cancel' || dismiss === 'timer') {
-            axios.post('/map/acceptance', {acceptance: "decline", index: data.index, id: data.id, drivers: data.drivers, order_id: data.order_id, address: data.message});
+            axios.post('/map/acceptance', {acceptance: "decline", index: data.index, id: data.id, drivers: data.drivers, order_id: data.order_id, address: data.message, userLat: data.userLat, userLong: data.userLong});
           }
         })
         timer = setInterval(function() {

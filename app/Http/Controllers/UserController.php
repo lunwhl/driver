@@ -116,6 +116,62 @@ class UserController extends Controller
             }
         endif;
 
+        $IC = Input::file('ICimage');
+        if( !empty( $IC ) ):
+
+            $ext1 = $IC->getClientOriginalExtension();
+            $filename1 = $User->id . "IC." . "JPG";
+            //save IC into identity in user table
+            $user = User::find($User->id);
+            $user->ic = $filename1;
+            $user->save();
+            if( App::environment('local') )
+            {
+                // Storage::put('public/images/'.$filename1, file_get_contents($IC));
+                $img = Image::make( $IC->getRealPath() );
+                $path = 'images/' . $filename1;
+                $this->SaveImage( $img, $path );
+            }
+            else if( App::environment('production') )
+            {
+                // $s3 = \Storage::disk('s3');
+                // $s3->put($filePath, file_get_contents($IC), 'public');
+                $img = Image::make( $IC->getRealPath() );
+                    $path = 'images/' . $filename1;
+                    $this->SaveImage( $img, $path );
+            }
+
+
+        endif;
+
+        $License = Input::file('Licenseimage');
+        if( !empty( $License ) ):
+
+            $ext1 = $License->getClientOriginalExtension();
+            $filename1 = $User->id . "License." . "JPG";
+            //save IC into identity in user table
+            $user = User::find($User->id);
+            $user->license = $filename1;
+            $user->save();
+            if( App::environment('local') )
+            {
+                // Storage::put('public/images/'.$filename1, file_get_contents($IC));
+                $img = Image::make( $License->getRealPath() );
+                $path = 'images/' . $filename1;
+                $this->SaveImage( $img, $path );
+            }
+            else if( App::environment('production') )
+            {
+                // $s3 = \Storage::disk('s3');
+                // $s3->put($filePath, file_get_contents($IC), 'public');
+                $img = Image::make( $License->getRealPath() );
+                    $path = 'images/' . $filename1;
+                    $this->SaveImage( $img, $path );
+            }
+
+
+        endif;
+
         return redirect()->back();
     }
 

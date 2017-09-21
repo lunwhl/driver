@@ -186,6 +186,20 @@
                             </div>
                         </div>
 
+                        <div class="form-group{{ $errors->has('number_plate') ? ' has-error' : '' }}">
+                            <label for="gender" class="col-md-4 control-label">Number Plate</label>
+
+                            <div class="col-md-6">
+                                <input id="gender" type="text" class="form-control" name="number_plate" value="{{ old('number_plate') }}" required autofocus>
+
+                                @if ($errors->has('number_plate'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('number_plate') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
                         <div class="form-group{{ $errors->has('bank') ? ' has-error' : '' }}">
                             <label for="bank" class="col-md-4 control-label">Bank</label>
 
@@ -215,7 +229,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="Carimage" class="col-md-4 control-label">Vehicle Photo</label>
+                            <label for="Carimage" class="col-md-4 control-label">License Plate Image</label>
                             <div class="col-md-6">
                                 <input type="file" class="form-control" name="Carimage">
                                 @if ($errors->has('account'))
@@ -230,6 +244,18 @@
                             <label for="ICimage" class="col-md-4 control-label">IC Image</label>
                             <div class="col-md-6">
                                 <input type="file" class="form-control" name="ICimage">
+                                @if ($errors->has('account'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('account') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Licenseimage" class="col-md-4 control-label">License Image</label>
+                            <div class="col-md-6">
+                                <input type="file" class="form-control" name="Licenseimage">
                                 @if ($errors->has('account'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('account') }}</strong>

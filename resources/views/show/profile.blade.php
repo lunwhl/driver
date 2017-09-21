@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default">
-                <div class="panel-heading">Register</div>
+                <div class="panel-heading">Update Profile</div>
                 <div class="panel-body">
                     <form class="form-horizontal" role="form" method="POST" action="/profile/{{$auth->id}}" enctype="multipart/form-data">
                         {{ csrf_field() }}
@@ -164,6 +164,20 @@
                             </div>
                         </div>
 
+                        <div class="form-group{{ $errors->has('number_plate') ? ' has-error' : '' }}">
+                            <label for="gender" class="col-md-4 control-label">Number Plate</label>
+
+                            <div class="col-md-6">
+                                <input id="gender" type="text" class="form-control" name="number_plate" value="{{$auth->number_plate}}" disabled autofocus>
+
+                                @if ($errors->has('number_plate'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('number_plate') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
                         <div class="form-group{{ $errors->has('bank') ? ' has-error' : '' }}">
                             <label for="bank" class="col-md-4 control-label">Bank</label>
 
@@ -193,14 +207,14 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="Carimage" class="col-md-4 control-label">Current Vehicle Photo</label>
+                            <label for="Carimage" class="col-md-4 control-label">Current License Plate Image</label>
                             <div class="col-md-6">
                             <img src="{{ $path }}/{{ $auth->license_plate }}" style="width:inherit;">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label for="Carimage" class="col-md-4 control-label">Vehicle Photo</label>
+                            <label for="Carimage" class="col-md-4 control-label">License Plate Image</label>
                             <div class="col-md-6">
                                 <input type="file" class="form-control" name="Carimage">
                                 @if ($errors->has('account'))
@@ -212,9 +226,47 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="Carimage" class="col-md-4 control-label">Current IC Image</label>
+                            <div class="col-md-6">
+                            <img src="{{ $path }}/{{ $auth->ic }}" style="width:inherit;">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Carimage" class="col-md-4 control-label">IC Image</label>
+                            <div class="col-md-6">
+                                <input type="file" class="form-control" name="ICimage">
+                                @if ($errors->has('account'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('account') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Carimage" class="col-md-4 control-label">Current License Image</label>
+                            <div class="col-md-6">
+                            <img src="{{ $path }}/{{ $auth->license }}" style="width:inherit;">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Carimage" class="col-md-4 control-label">License Image</label>
+                            <div class="col-md-6">
+                                <input type="file" class="form-control" name="Licenseimage">
+                                @if ($errors->has('account'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('account') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <div class="col-md-6 col-md-offset-4">
                                 <button type="submit" class="btn btn-primary">
-                                    Register
+                                    Upload
                                 </button>
                             </div>
                         </div>
