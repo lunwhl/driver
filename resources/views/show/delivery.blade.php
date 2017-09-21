@@ -20,13 +20,15 @@
 	  @forelse($pickup_addresses as $key => $pickup_address)
 		  <div class="col-md-6">
 		  	<p><span>Pickup Location {{$key}}:</span> <span>{{$pickup_address->address_line}}</span></p>
-		  	<p><a class="btn btn-primary" href="#">Help</a></p>
 		  </div>
 	  @empty
 		  <div class="col-md-6">
 		  	<p>No result</p>
 		  </div>
 	  @endforelse
+	  @if(count($pickup_address) > 0)
+	  <p><a class="btn btn-primary" href="#">Help</a></p>
+	  @endif
 	</div>
 </div>
 <div class="row">
