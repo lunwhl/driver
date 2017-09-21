@@ -308,15 +308,15 @@ class DeliveryController extends Controller
         //Log::info("getPickupDetails");
         $delivery = Delivery::where('order_id', $request->order_id)->first();
 
-        $delivery->pickup_time = $request->pickup_time;
-        $delivery->save();
-
         $delivery->addresses()->create([
                 'type' => 'pickup',
                 'address_line' => $request->pickup_address,
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
             ]);
+
+        $delivery->pickup_time = $request->input('pickup_time');
+        $delivery->save();
 
         event(new \App\Events\PickupEvent("Order Accepted.", $request->pickup_address, $delivery->id, $delivery->user_id));
 
